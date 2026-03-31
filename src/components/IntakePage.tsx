@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GlassPanel } from "@/components/GlassPanel"
-import { PaperPlaneRight } from "@phosphor-icons/react"
 import { Signal, RequestType } from "@/lib/types"
 import { generateUniqueTicketId } from "@/lib/ticket-generator"
 import { sendDiscordWebhook } from "@/lib/discord-webhook"
@@ -74,62 +73,75 @@ export function IntakePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-6 sm:p-8 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent opacity-30 pointer-events-none" />
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="max-w-3xl mx-auto"
+        className="max-w-2xl mx-auto relative"
       >
-        <div className="mb-12 text-center">
-          <h1 className="text-4xl font-semibold tracking-tight mb-4">
-            Frisky Developments
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Signal Intake Desk
-          </p>
-        </div>
-
-        <GlassPanel className="mb-8">
-          <div className="space-y-4">
-            <h2 className="text-xl font-medium">Submit Your Request</h2>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Send your request through the desk.</p>
-              <p>No DMs. Everything flows through the system.</p>
-              <p>Track your request with your Ticket ID.</p>
-            </div>
+        <div className="mb-12 space-y-6">
+          <div className="text-center space-y-2">
+            <p className="text-sm text-muted-foreground tracking-wide">
+              🐾 Forged with a Frisky Paw and a daring heart.
+            </p>
           </div>
-        </GlassPanel>
+
+          <div className="text-center space-y-3">
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight leading-tight">
+              Your <span className="bg-gradient-to-r from-[oklch(0.65_0.2_250)] via-[oklch(0.68_0.18_270)] to-[oklch(0.72_0.16_290)] bg-clip-text text-transparent drop-shadow-[0_0_12px_oklch(0.68_0.15_270/0.3)]">Signal</span> matters.
+            </h1>
+            <p className="text-lg text-foreground/80">
+              We're here to move it forward.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              — FriskyDevelopments
+            </p>
+          </div>
+        </div>
 
         <GlassPanel>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name" className="text-sm font-medium">
+                ◇ Identity
+              </Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your full name"
+                placeholder="Your name"
                 required
+                className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact">Email or Preferred Contact *</Label>
+              <Label htmlFor="contact" className="text-sm font-medium">
+                → Contact Channel
+              </Label>
               <Input
                 id="contact"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 placeholder="email@example.com or @handle"
                 required
+                className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="request-type">Request Type *</Label>
+              <Label htmlFor="request-type" className="text-sm font-medium">
+                ✦ Signal Type
+              </Label>
               <Select value={requestType} onValueChange={(value) => setRequestType(value as RequestType)}>
-                <SelectTrigger id="request-type">
-                  <SelectValue placeholder="Select a request type" />
+                <SelectTrigger id="request-type" className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary">
+                  <SelectValue placeholder="Select signal type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Technical Support">Technical Support</SelectItem>
@@ -142,17 +154,22 @@ export function IntakePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="project">Project / Brand (Optional)</Label>
+              <Label htmlFor="project" className="text-sm font-medium text-muted-foreground">
+                Project / Brand <span className="text-xs">(optional)</span>
+              </Label>
               <Input
                 id="project"
                 value={project}
                 onChange={(e) => setProject(e.target.value)}
-                placeholder="Related project or brand name"
+                placeholder="Related project or brand"
+                className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message">Message *</Label>
+              <Label htmlFor="message" className="text-sm font-medium">
+                ✧ Signal Payload
+              </Label>
               <Textarea
                 id="message"
                 value={message}
@@ -160,32 +177,33 @@ export function IntakePage() {
                 placeholder="Describe your request in detail"
                 rows={6}
                 required
+                className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary resize-none"
               />
             </div>
 
-            <div className="flex gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1"
+                className="flex-1 bg-primary hover:bg-primary/90 transition-all duration-200 hover:shadow-[0_0_20px_oklch(0.68_0.15_45/0.25)]"
               >
-                <PaperPlaneRight className="mr-2" />
-                {isSubmitting ? "Submitting..." : "Submit Signal"}
+                {isSubmitting ? "Transmitting..." : "✦ Transmit Signal"}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate("/status")}
+                className="sm:w-auto transition-all duration-200 hover:border-primary/50"
               >
-                Check Status
+                ◇ Track Signal
               </Button>
             </div>
           </form>
         </GlassPanel>
 
-        <div className="mt-8 text-center text-sm text-muted-foreground">
-          <p>All requests are processed through the operator console.</p>
-          <p>You'll receive a Ticket ID to track your signal.</p>
+        <div className="mt-8 text-center text-xs text-muted-foreground space-y-1">
+          <p>All signals are processed through the operator console.</p>
+          <p>You'll receive a Ticket ID to track your request.</p>
         </div>
       </motion.div>
     </div>
