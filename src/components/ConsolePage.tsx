@@ -1,0 +1,285 @@
+import { useState, useMemo } from "react"
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { GlassPanel } from "@/components/GlassPanel"
+import { StatusBadge } from "@/components/StatusBadge"
+import { MagnifyingGlass, Funnel, Export, Eye, Gear } from "@phosphor-icons/react"
+import { Signal, SignalStatus, RequestType } from "@/lib/types"
+import { useKV } from "@github/spark/hooks"
+import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
+
+export function ConsolePage() {
+  const navigate = useNavigate()
+  const [signals, setSignals] = useKV<Signal[]>("signals", [])
+  const [webhookUrl, setWebhookUrl] = useKV<string>("discord-webhook-url", "")
+  const [tempWebhookUrl, setTempWebhookUrl] = useState("")
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
+  const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
+
+  const filteredSignals = useMemo(() => {
+    if (!signals) return []
+    
+    return signals.filter(signal => {
+      const matchesSearch = 
+        signal.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        signal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        signal.contact.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesStatus = statusFilter === "ALL" || signal.status === statusFilter
+      const matchesType = typeFilter === "ALL" || signal.requestType === typeFilter
+
+      return matchesSearch && matchesStatus && matchesType
+    })
+  }, [signals, searchTerm, statusFilter, typeFilter])
+
+  const handleMarkAsViewed = (signalId: string) => {
+    setSignals((current) => 
+      current?.map(s => s.id === signalId ? { ...s, isNew: false } : s) ?? []
+    )
+  }
+
+  const handleExportCSV = () => {
+    if (!signals || signals.length === 0) {
+      toast.error("No signals to export")
+      return
+    }
+
+    const headers = ["Ticket ID", "Name", "Contact", "Request Type", "Project", "Status", "Created At", "Updated At"]
+    const rows = signals.map(s => [
+      s.ticketId,
+      s.name,
+      s.contact,
+      s.requestType,
+      s.project || "",
+      s.status,
+      new Date(s.createdAt).toLocaleString(),
+      new Date(s.updatedAt).toLocaleString()
+    ])
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n")
+
+    const blob = new Blob([csvContent], { type: "text/csv" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `signals-export-${Date.now()}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+    
+    toast.success("Signals exported to CSV")
+  }
+
+  const handleSaveSettings = () => {
+    setWebhookUrl(tempWebhookUrl)
+    setSettingsOpen(false)
+    toast.success("Settings saved")
+  }
+
+  const openSettings = () => {
+    setTempWebhookUrl(webhookUrl || "")
+    setSettingsOpen(true)
+  }
+
+  const formatTimestamp = (timestamp: number) => {
+    const date = new Date(timestamp)
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  }
+
+  return (
+    <div className="min-h-screen bg-background p-8">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="max-w-7xl mx-auto"
+      >
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight mb-2">
+              Operator Console
+            </h1>
+            <p className="text-muted-foreground">
+              Signal queue management
+            </p>
+          </div>
+          
+          <div className="flex gap-2">
+            <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" onClick={openSettings}>
+                  <Gear className="mr-2" />
+                  Settings
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Console Settings</DialogTitle>
+                  <DialogDescription>
+                    Configure Discord webhook and other settings
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="webhook-url">Discord Webhook URL</Label>
+                    <Input
+                      id="webhook-url"
+                      value={tempWebhookUrl}
+                      onChange={(e) => setTempWebhookUrl(e.target.value)}
+                      placeholder="https://discord.com/api/webhooks/..."
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      New signals will trigger Discord notifications
+                    </p>
+                  </div>
+                  <Button onClick={handleSaveSettings} className="w-full">
+                    Save Settings
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            
+            <Button onClick={handleExportCSV} variant="outline">
+              <Export className="mr-2" />
+              Export CSV
+            </Button>
+          </div>
+        </div>
+
+        <GlassPanel className="mb-6">
+          <div className="flex gap-4 flex-wrap">
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                <Input
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by Ticket ID, name, or contact"
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as SignalStatus | "ALL")}>
+                <SelectTrigger className="w-[180px]">
+                  <Funnel className="mr-2" size={18} />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Status</SelectItem>
+                  <SelectItem value="SIGNAL_RECEIVED">Signal Received</SelectItem>
+                  <SelectItem value="OPERATOR_ASSIGNED">Operator Assigned</SelectItem>
+                  <SelectItem value="IN_REVIEW">In Review</SelectItem>
+                  <SelectItem value="WAITING_ON_USER">Waiting On User</SelectItem>
+                  <SelectItem value="RESOLUTION_COMPLETE">Resolution Complete</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as RequestType | "ALL")}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Types</SelectItem>
+                  <SelectItem value="Technical Support">Technical Support</SelectItem>
+                  <SelectItem value="Billing / Order Help">Billing / Order Help</SelectItem>
+                  <SelectItem value="Partnership / Collaboration">Partnership / Collaboration</SelectItem>
+                  <SelectItem value="Custom Build Request">Custom Build Request</SelectItem>
+                  <SelectItem value="General Inquiry">General Inquiry</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </GlassPanel>
+
+        <GlassPanel className="overflow-hidden p-0">
+          {filteredSignals.length === 0 ? (
+            <div className="p-12 text-center text-muted-foreground">
+              <p>No active signals</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[140px]">Ticket ID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredSignals.map((signal) => (
+                    <TableRow
+                      key={signal.id}
+                      className={cn(
+                        "cursor-pointer transition-all duration-200",
+                        signal.isNew && "signal-new"
+                      )}
+                      onClick={() => {
+                        handleMarkAsViewed(signal.id)
+                        navigate(`/console/signal/${signal.id}`)
+                      }}
+                    >
+                      <TableCell className="font-medium">
+                        {signal.ticketId}
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{signal.name}</div>
+                          <div className="text-sm text-muted-foreground">{signal.contact}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {signal.requestType}
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={signal.status} />
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatTimestamp(signal.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleMarkAsViewed(signal.id)
+                            navigate(`/console/signal/${signal.id}`)
+                          }}
+                        >
+                          <Eye size={16} />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </GlassPanel>
+      </motion.div>
+    </div>
+  )
+}
