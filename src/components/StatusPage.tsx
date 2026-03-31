@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { GlassPanel } from "@/components/GlassPanel"
 import { SignalDeskHeader } from "@/components/SignalDeskHeader"
+import { SignalFooter } from "@/components/SignalFooter"
 import { StatusTimeline } from "@/components/StatusTimeline"
 import { MagnifyingGlass } from "@phosphor-icons/react"
 import { Signal } from "@/lib/types"
@@ -120,6 +121,8 @@ export function StatusPage() {
           )}
         </motion.div>
       </div>
+
+      <SignalFooter />
     </div>
   )
 }

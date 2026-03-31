@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { GlassPanel } from "@/components/GlassPanel"
+import { SignalFooter } from "@/components/SignalFooter"
 import { CheckCircle } from "@phosphor-icons/react"
 import { motion } from "framer-motion"
 
@@ -58,6 +59,8 @@ export function SubmittedPage() {
           <p>Save your Ticket ID to check status at any time.</p>
         </div>
       </motion.div>
+
+      <SignalFooter />
     </div>
   )
 }
