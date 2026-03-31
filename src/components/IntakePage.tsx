@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,13 @@ import { useKV } from "@github/spark/hooks"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 
+interface TelegramUser {
+  id: number
+  first_name: string
+  last_name?: string
+  username?: string
+}
+
 export function IntakePage() {
   const navigate = useNavigate()
   const formRef = useRef<HTMLFormElement>(null)
@@ -26,6 +33,23 @@ export function IntakePage() {
   const [project, setProject] = useState("")
   const [message, setMessage] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [telegramUser, setTelegramUser] = useState<TelegramUser | null>(null)
+  const [language, setLanguage] = useState<"en" | "es">("en")
+
+  useEffect(() => {
+    const tg = (window as any).Telegram?.WebApp
+    if (tg) {
+      const user = tg.initDataUnsafe?.user
+      if (user) {
+        setTelegramUser(user)
+        const displayName = user.username 
+          ? `@${user.username}` 
+          : `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`
+        setName(displayName)
+      }
+      setLanguage(tg.initDataUnsafe?.user?.language_code === "es" ? "es" : "en")
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -100,17 +124,35 @@ export function IntakePage() {
               <Label htmlFor="name" className="text-sm font-medium text-[#888888]">
                 ◇ Identity
               </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your Telegram username"
-                required
-                className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
-              />
-              <p className="text-xs text-muted-foreground">
-                Using your Telegram identity
-              </p>
+              {telegramUser ? (
+                <div className="relative">
+                  <Input
+                    id="name"
+                    value={name}
+                    readOnly
+                    className="bg-[#0A0A0A] border-2 border-[#333333] text-foreground cursor-default focus-visible:ring-0"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Connected via Telegram
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    required
+                    className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {language === "es" 
+                      ? "Ingresa tu nombre (Telegram no detectado)" 
+                      : "Enter your name (Telegram not detected)"}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
