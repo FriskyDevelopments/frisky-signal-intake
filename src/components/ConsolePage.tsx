@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { GlassPanel } from "@/components/GlassPanel"
+import { SignalDeskHeader } from "@/components/SignalDeskHeader"
 import { StatusBadge } from "@/components/StatusBadge"
-import { MagnifyingGlass, Funnel, Export, Eye, Gear } from "@phosphor-icons/react"
+import { MagnifyingGlass, Funnel, Export, Gear } from "@phosphor-icons/react"
 import { Signal, SignalStatus, RequestType } from "@/lib/types"
 import { useKV } from "@github/spark/hooks"
 import { motion } from "framer-motion"
@@ -103,183 +104,186 @@ export function ConsolePage() {
     })
   }
 
-  return (
-    <div className="min-h-screen bg-background p-8">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="max-w-7xl mx-auto"
-      >
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight mb-2">
-              Operator Console
-            </h1>
-            <p className="text-muted-foreground">
-              Signal queue management
-            </p>
-          </div>
-          
-          <div className="flex gap-2">
-            <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" onClick={openSettings}>
-                  <Gear className="mr-2" />
-                  Settings
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Console Settings</DialogTitle>
-                  <DialogDescription>
-                    Configure Discord webhook and other settings
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="webhook-url">Discord Webhook URL</Label>
-                    <Input
-                      id="webhook-url"
-                      value={tempWebhookUrl}
-                      onChange={(e) => setTempWebhookUrl(e.target.value)}
-                      placeholder="https://discord.com/api/webhooks/..."
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      New signals will trigger Discord notifications
-                    </p>
-                  </div>
-                  <Button onClick={handleSaveSettings} className="w-full">
-                    Save Settings
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-            
-            <Button onClick={handleExportCSV} variant="outline">
-              <Export className="mr-2" />
-              Export CSV
-            </Button>
-          </div>
-        </div>
+  const scrollToQueue = () => {
+    const element = document.getElementById('signal-queue')
+    element?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
 
-        <GlassPanel className="mb-6">
-          <div className="flex gap-4 flex-wrap">
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-                <Input
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by Ticket ID, name, or contact"
-                  className="pl-10"
-                />
+  const activeSignalsCount = filteredSignals.filter(s => 
+    s.status !== "RESOLUTION_COMPLETE"
+  ).length
+
+  return (
+    <div className="min-h-screen bg-background">
+      <SignalDeskHeader 
+        variant="console"
+        onOpenQueue={scrollToQueue}
+        onActiveSignals={scrollToQueue}
+      />
+      
+      <div className="p-6 sm:p-8">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="max-w-7xl mx-auto"
+        >
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight mb-2">
+                Signal Queue
+              </h2>
+              <p className="text-muted-foreground">
+                {activeSignalsCount} active signal{activeSignalsCount !== 1 ? 's' : ''}
+              </p>
+            </div>
+            
+            <div className="flex gap-2">
+              <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" onClick={openSettings}>
+                    <Gear className="mr-2" />
+                    Settings
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Console Settings</DialogTitle>
+                    <DialogDescription>
+                      Configure Discord webhook and other settings
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="webhook-url">Discord Webhook URL</Label>
+                      <Input
+                        id="webhook-url"
+                        value={tempWebhookUrl}
+                        onChange={(e) => setTempWebhookUrl(e.target.value)}
+                        placeholder="https://discord.com/api/webhooks/..."
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        New signals will trigger Discord notifications
+                      </p>
+                    </div>
+                    <Button onClick={handleSaveSettings} className="w-full">
+                      Save Settings
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              
+              <Button onClick={handleExportCSV} variant="outline">
+                <Export className="mr-2" />
+                Export CSV
+              </Button>
+            </div>
+          </div>
+
+          <GlassPanel className="mb-6" id="signal-queue">
+            <div className="flex gap-4 flex-wrap">
+              <div className="flex-1 min-w-[200px]">
+                <div className="relative">
+                  <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                  <Input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search by Ticket ID, name, or contact"
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as SignalStatus | "ALL")}>
+                  <SelectTrigger className="w-[180px]">
+                    <Funnel className="mr-2" size={18} />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All Status</SelectItem>
+                    <SelectItem value="SIGNAL_RECEIVED">Signal Received</SelectItem>
+                    <SelectItem value="OPERATOR_ASSIGNED">Operator Assigned</SelectItem>
+                    <SelectItem value="IN_REVIEW">In Review</SelectItem>
+                    <SelectItem value="WAITING_ON_USER">Waiting On User</SelectItem>
+                    <SelectItem value="RESOLUTION_COMPLETE">Resolution Complete</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as RequestType | "ALL")}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All Types</SelectItem>
+                    <SelectItem value="Technical Support">Technical Support</SelectItem>
+                    <SelectItem value="Billing / Order Help">Billing / Order Help</SelectItem>
+                    <SelectItem value="Partnership / Collaboration">Partnership / Collaboration</SelectItem>
+                    <SelectItem value="Custom Build Request">Custom Build Request</SelectItem>
+                    <SelectItem value="General Inquiry">General Inquiry</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+          </GlassPanel>
 
-            <div className="flex gap-2">
-              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as SignalStatus | "ALL")}>
-                <SelectTrigger className="w-[180px]">
-                  <Funnel className="mr-2" size={18} />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Status</SelectItem>
-                  <SelectItem value="SIGNAL_RECEIVED">Signal Received</SelectItem>
-                  <SelectItem value="OPERATOR_ASSIGNED">Operator Assigned</SelectItem>
-                  <SelectItem value="IN_REVIEW">In Review</SelectItem>
-                  <SelectItem value="WAITING_ON_USER">Waiting On User</SelectItem>
-                  <SelectItem value="RESOLUTION_COMPLETE">Resolution Complete</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as RequestType | "ALL")}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Types</SelectItem>
-                  <SelectItem value="Technical Support">Technical Support</SelectItem>
-                  <SelectItem value="Billing / Order Help">Billing / Order Help</SelectItem>
-                  <SelectItem value="Partnership / Collaboration">Partnership / Collaboration</SelectItem>
-                  <SelectItem value="Custom Build Request">Custom Build Request</SelectItem>
-                  <SelectItem value="General Inquiry">General Inquiry</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </GlassPanel>
-
-        <GlassPanel className="overflow-hidden p-0">
-          {filteredSignals.length === 0 ? (
-            <div className="p-12 text-center text-muted-foreground">
-              <p>No active signals</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[140px]">Ticket ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSignals.map((signal) => (
-                    <TableRow
-                      key={signal.id}
-                      className={cn(
-                        "cursor-pointer transition-all duration-200",
-                        signal.isNew && "signal-new"
-                      )}
-                      onClick={() => {
-                        handleMarkAsViewed(signal.id)
-                        navigate(`/console/signal/${signal.id}`)
-                      }}
-                    >
-                      <TableCell className="font-medium">
-                        {signal.ticketId}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{signal.name}</div>
-                          <div className="text-sm text-muted-foreground">{signal.contact}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {signal.requestType}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={signal.status} />
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {formatTimestamp(signal.createdAt)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleMarkAsViewed(signal.id)
-                            navigate(`/console/signal/${signal.id}`)
-                          }}
-                        >
-                          <Eye size={16} />
-                        </Button>
-                      </TableCell>
+          <GlassPanel className="overflow-hidden p-0">
+            {filteredSignals.length === 0 ? (
+              <div className="p-12 text-center text-muted-foreground">
+                <p>No active signals</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[140px]">Ticket ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </GlassPanel>
-      </motion.div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredSignals.map((signal) => (
+                      <TableRow
+                        key={signal.id}
+                        className={cn(
+                          "cursor-pointer transition-all duration-200",
+                          signal.isNew && "signal-new"
+                        )}
+                        onClick={() => {
+                          handleMarkAsViewed(signal.id)
+                          navigate(`/console/signal/${signal.id}`)
+                        }}
+                      >
+                        <TableCell className="font-medium">
+                          {signal.ticketId}
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{signal.name}</div>
+                            <div className="text-sm text-muted-foreground">{signal.contact}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {signal.requestType}
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge status={signal.status} />
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {formatTimestamp(signal.createdAt)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </GlassPanel>
+        </motion.div>
+      </div>
     </div>
   )
 }

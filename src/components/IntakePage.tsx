@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GlassPanel } from "@/components/GlassPanel"
+import { SignalDeskHeader } from "@/components/SignalDeskHeader"
 import { Signal, RequestType } from "@/lib/types"
 import { generateUniqueTicketId } from "@/lib/ticket-generator"
 import { sendDiscordWebhook } from "@/lib/discord-webhook"
@@ -15,6 +16,7 @@ import { motion } from "framer-motion"
 
 export function IntakePage() {
   const navigate = useNavigate()
+  const formRef = useRef<HTMLFormElement>(null)
   const [signals, setSignals] = useKV<Signal[]>("signals", [])
   const [webhookUrl] = useKV<string>("discord-webhook-url", "")
   
@@ -72,41 +74,28 @@ export function IntakePage() {
     }
   }
 
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
   return (
-    <div className="min-h-screen bg-background p-6 sm:p-8 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-background">
+      <SignalDeskHeader 
+        variant="intake"
+        onTransmit={scrollToForm}
+        onTrack={() => navigate("/status")}
+      />
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="max-w-2xl mx-auto relative"
-      >
-        <div className="mb-12 space-y-6">
-          <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground tracking-wide">
-              🐾 Forged with a Frisky Paw and a daring heart.
-            </p>
-          </div>
-
-          <div className="text-center space-y-3">
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight leading-tight">
-              Your <span className="bg-gradient-to-r from-[oklch(0.65_0.2_250)] via-[oklch(0.68_0.18_270)] to-[oklch(0.72_0.16_290)] bg-clip-text text-transparent drop-shadow-[0_0_12px_oklch(0.68_0.15_270/0.3)]">Signal</span> matters.
-            </h1>
-            <p className="text-lg text-foreground/80">
-              We're here to move it forward.
-            </p>
-          </div>
-
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              — FriskyDevelopments
-            </p>
-          </div>
-        </div>
+      <div className="p-6 sm:p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="max-w-2xl mx-auto"
+        >
 
         <GlassPanel>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium">
                 ◇ Identity
@@ -201,11 +190,12 @@ export function IntakePage() {
           </form>
         </GlassPanel>
 
-        <div className="mt-8 text-center text-xs text-muted-foreground space-y-1">
-          <p>All signals are processed through the operator console.</p>
-          <p>You'll receive a Ticket ID to track your request.</p>
-        </div>
-      </motion.div>
+          <div className="mt-8 text-center text-xs text-muted-foreground space-y-1">
+            <p>All signals are processed through the operator console.</p>
+            <p>You'll receive a Ticket ID to track your request.</p>
+          </div>
+        </motion.div>
+      </div>
     </div>
   )
 }
