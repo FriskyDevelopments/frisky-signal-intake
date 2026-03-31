@@ -64,7 +64,7 @@ export function SignalDeskHeader({
         >
           <div className="space-y-8">
             <div className="space-y-1">
-              <div className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-muted-foreground/75">
+              <div className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-foreground/50 font-medium">
                 ◇ FRISKY DEVELOPMENTS
               </div>
               <div className="flex items-center gap-2.5">
@@ -72,15 +72,15 @@ export function SignalDeskHeader({
                   src={wolfLogo}
                   alt="Frisky"
                   className="
-                    w-10 h-10 md:w-11 md:h-11
-                    opacity-90
+                    w-11 h-11 md:w-12 md:h-12
+                    opacity-95
                     object-contain
                     select-none
                     -translate-y-[1px]
                   "
                 />
                 <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#EAEAF0]">
-                  <span className="font-semibold bg-gradient-to-r from-[oklch(0.65_0.25_265)] via-[oklch(0.60_0.22_275)] to-[oklch(0.55_0.20_285)] bg-clip-text text-transparent">Signal</span> Desk
+                  <span className="font-semibold bg-gradient-to-r from-[oklch(0.65_0.25_265)] via-[oklch(0.60_0.22_275)] to-[oklch(0.55_0.20_285)] bg-clip-text text-transparent drop-shadow-[0_0_10px_oklch(0.60_0.22_275/0.25)]">Signal</span> Desk
                 </h1>
               </div>
             </div>
@@ -89,17 +89,17 @@ export function SignalDeskHeader({
               <p
                 className="
                   mt-4
-                  text-[13.5px] md:text-[15px]
+                  text-[14px] md:text-[15px]
                   tracking-wide
 
                   text-transparent
                   bg-clip-text
                   bg-gradient-to-r
-                  from-white/50
-                  via-white/30
-                  to-white/50
+                  from-white/55
+                  via-white/35
+                  to-white/55
 
-                  opacity-85
+                  opacity-90
                 "
               >
                 🐾 Forged with a Frisky Paw and a daring heart.
@@ -107,7 +107,7 @@ export function SignalDeskHeader({
               
               <div className="text-lg sm:text-xl text-foreground/90 leading-relaxed">
                 <span>Your </span>
-                <span className="font-semibold bg-gradient-to-r from-[oklch(0.65_0.25_265)] via-[oklch(0.60_0.22_275)] to-[oklch(0.55_0.20_285)] bg-clip-text text-transparent drop-shadow-[0_0_8px_oklch(0.60_0.22_275/0.3)]">
+                <span className="font-semibold bg-gradient-to-r from-[oklch(0.65_0.25_265)] via-[oklch(0.60_0.22_275)] to-[oklch(0.55_0.20_285)] bg-clip-text text-transparent drop-shadow-[0_0_10px_oklch(0.60_0.22_275/0.35)]">
                   Signal
                 </span>
                 <span> matters.</span>
