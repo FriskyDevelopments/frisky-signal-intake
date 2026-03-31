@@ -1,11 +1,11 @@
 # Frisky Developments Signal Intake System
 
-A premium signal intake and operator console system that feels like proprietary internal infrastructure for managing client requests without DMs.
+A premium signal intake and operator console system that feels like proprietary Frisky Developments infrastructure for managing client requests without DMs.
 
 **Experience Qualities**:
-1. **Operational** - Functions like high-bandwidth internal tooling with fast workflows and dense information architecture
-2. **Premium Dark** - Sophisticated glass-morphic surfaces with carbon-like matte finishes creating a technical yet refined atmosphere
-3. **Precise** - Technical language, clear states, and system-like communication patterns that feel like infrastructure, not customer service
+1. **Branded Internal Tooling** - Functions like high-bandwidth proprietary infrastructure with clear Frisky Developments identity and system-native terminology
+2. **Premium Dark** - Sophisticated glass-morphic surfaces with carbon-like matte finishes, cinematic radial backgrounds, and subtle signal field aesthetics
+3. **Supportive Yet Operational** - Technical language that balances human-centered support messaging with precise system-like communication patterns
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
 This is a dual-interface system with public intake and protected operator console, featuring real-time state management, Discord webhooks, system logging, CSV export, and comprehensive filtering/search capabilities.

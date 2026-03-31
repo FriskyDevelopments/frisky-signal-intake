@@ -8,6 +8,38 @@
   
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--background);
+    position: relative;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle at 20% 30%, oklch(0.68 0.15 45 / 0.03) 0%, transparent 40%),
+                      radial-gradient(circle at 80% 70%, oklch(0.75 0.14 65 / 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      oklch(0.98 0 0 / 0.01) 2px,
+      oklch(0.98 0 0 / 0.01) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  #root {
+    position: relative;
+    z-index: 1;
   }
 }
 
@@ -41,6 +73,10 @@
   --ring: oklch(0.68 0.15 45);
 
   --radius: 0.5rem;
+  
+  --signal-gradient-start: oklch(0.65 0.25 265);
+  --signal-gradient-mid: oklch(0.60 0.22 275);
+  --signal-gradient-end: oklch(0.55 0.20 285);
 }
 
 @theme {

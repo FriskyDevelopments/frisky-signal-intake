@@ -61,7 +61,7 @@ export function SignalDeskHeader({
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="space-y-8"
         >
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 sm:w-14 sm:h-14">
                 <WolfEmblem />
@@ -76,9 +76,27 @@ export function SignalDeskHeader({
               </div>
             </div>
 
-            <p className="text-base sm:text-lg text-[#A0A4AE] tracking-wide max-w-md">
-              Transmit • Track • Route Signals
-            </p>
+            <div className="space-y-4 max-w-2xl">
+              <p className="text-[10px] sm:text-xs text-muted-foreground/50 tracking-wide">
+                🐾 Forged with a Frisky Paw and a daring heart.
+              </p>
+              
+              <div className="text-lg sm:text-xl text-foreground/90 leading-relaxed">
+                <span>Your </span>
+                <span className="font-semibold bg-gradient-to-r from-[oklch(0.65_0.25_265)] via-[oklch(0.60_0.22_275)] to-[oklch(0.55_0.20_285)] bg-clip-text text-transparent drop-shadow-[0_0_8px_oklch(0.60_0.22_275/0.3)]">
+                  Signal
+                </span>
+                <span> matters.</span>
+              </div>
+              
+              <p className="text-base sm:text-lg text-muted-foreground">
+                We're here to move it forward.
+              </p>
+
+              <p className="text-xs sm:text-sm text-muted-foreground/70 italic pt-2">
+                — FriskyDevelopments
+              </p>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
@@ -167,15 +185,6 @@ export function SignalDeskHeader({
               </>
             )}
           </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="absolute bottom-6 right-8 text-[10px] sm:text-xs text-muted-foreground/40 tracking-wide"
-        >
-          🐾 Forged with a frisky paw and a daring heart
         </motion.div>
       </div>
 
