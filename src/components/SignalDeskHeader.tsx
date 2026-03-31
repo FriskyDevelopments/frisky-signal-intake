@@ -85,42 +85,9 @@ export function SignalDeskHeader({
               </div>
             </div>
 
-            <div className="space-y-4 max-w-2xl">
-              <p
-                className="
-                  mt-4
-                  text-[14px] md:text-[15px]
-                  tracking-wide
-
-                  text-transparent
-                  bg-clip-text
-                  bg-gradient-to-r
-                  from-white/55
-                  via-white/35
-                  to-white/55
-
-                  opacity-90
-                "
-              >
-                🐾 Forged with a Frisky Paw and a daring heart.
-              </p>
-              
-              <div className="text-lg sm:text-xl text-foreground/90 leading-relaxed">
-                <span>Your </span>
-                <span className="font-semibold bg-gradient-to-r from-[oklch(0.65_0.25_265)] via-[oklch(0.60_0.22_275)] to-[oklch(0.55_0.20_285)] bg-clip-text text-transparent drop-shadow-[0_0_10px_oklch(0.60_0.22_275/0.35)]">
-                  Signal
-                </span>
-                <span> matters.</span>
-              </div>
-              
-              <p className="text-base sm:text-lg text-muted-foreground">
-                We're here to move it forward.
-              </p>
-
-              <p className="text-xs sm:text-sm text-muted-foreground/70 italic pt-2">
-                — FriskyDevelopments
-              </p>
-            </div>
+            <p className="text-sm sm:text-base text-muted-foreground/80 max-w-2xl">
+              Transmit • Track • Route Signals
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">

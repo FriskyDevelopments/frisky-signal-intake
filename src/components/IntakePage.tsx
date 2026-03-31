@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { GlassPanel } from "@/components/GlassPanel"
 import { SignalDeskHeader } from "@/components/SignalDeskHeader"
+import { SignalFooter } from "@/components/SignalFooter"
 import { Signal, RequestType } from "@/lib/types"
 import { generateUniqueTicketId } from "@/lib/ticket-generator"
 import { sendDiscordWebhook } from "@/lib/discord-webhook"
@@ -189,13 +190,10 @@ export function IntakePage() {
             </div>
           </form>
         </GlassPanel>
-
-          <div className="mt-8 text-center text-xs text-muted-foreground space-y-1">
-            <p>All signals are processed through the operator console.</p>
-            <p>You'll receive a Ticket ID to track your request.</p>
-          </div>
         </motion.div>
       </div>
+
+      <SignalFooter />
     </div>
   )
 }
