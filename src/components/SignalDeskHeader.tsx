@@ -67,12 +67,17 @@ export function SignalDeskHeader({
               <div className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-muted-foreground/60">
                 ◇ Frisky Developments
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <img
                   src={wolfLogo}
                   alt="Frisky"
-                  className="w-11 h-11 sm:w-12 sm:h-12 opacity-85 object-contain select-none"
-                  style={{ filter: 'brightness(1.05) contrast(1.1)' }}
+                  className="
+                    w-9 h-9 md:w-10 md:h-10
+                    opacity-95
+                    object-contain
+                    select-none
+                    -translate-y-[1px]
+                  "
                 />
                 <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#EAEAF0]">
                   Signal Desk
@@ -81,7 +86,22 @@ export function SignalDeskHeader({
             </div>
 
             <div className="space-y-4 max-w-2xl">
-              <p className="text-xs sm:text-sm text-muted-foreground/70 tracking-wide font-light">
+              <p
+                className="
+                  mt-4
+                  text-[13px] md:text-sm
+                  tracking-wide
+
+                  text-transparent
+                  bg-clip-text
+                  bg-gradient-to-r
+                  from-white/40
+                  via-white/20
+                  to-white/40
+
+                  opacity-80
+                "
+              >
                 🐾 Forged with a Frisky Paw and a daring heart.
               </p>
               
