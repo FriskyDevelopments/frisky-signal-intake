@@ -22,7 +22,6 @@ export function IntakePage() {
   const [webhookUrl] = useKV<string>("discord-webhook-url", "")
   
   const [name, setName] = useState("")
-  const [contact, setContact] = useState("")
   const [requestType, setRequestType] = useState<RequestType | "">("")
   const [project, setProject] = useState("")
   const [message, setMessage] = useState("")
@@ -31,7 +30,7 @@ export function IntakePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!name || !contact || !requestType || !message) {
+    if (!name || !requestType || !message) {
       toast.error("Please fill in all required fields")
       return
     }
@@ -47,7 +46,7 @@ export function IntakePage() {
         id: `signal-${now}`,
         ticketId,
         name,
-        contact,
+        contact: name,
         requestType: requestType as RequestType,
         project: project || undefined,
         message,
@@ -105,24 +104,13 @@ export function IntakePage() {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder="Your Telegram username"
                 required
                 className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="contact" className="text-sm font-medium text-[#888888]">
-                → Contact Channel
-              </Label>
-              <Input
-                id="contact"
-                value={contact}
-                onChange={(e) => setContact(e.target.value)}
-                placeholder="email@example.com or @handle"
-                required
-                className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
-              />
+              <p className="text-xs text-muted-foreground">
+                Using your Telegram identity
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -164,14 +152,23 @@ export function IntakePage() {
                 id="message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Describe your request in detail"
-                rows={6}
+                placeholder="Describe your request, issue, or idea…"
+                rows={8}
                 required
-                className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200 resize-none"
+                className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200 resize-none py-3"
               />
+              <p className="text-xs text-muted-foreground">
+                What do you want us to do or help with?
+              </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="pt-2 pb-4">
+              <p className="text-xs text-muted-foreground text-center">
+                No DMs. Signals are routed through the system.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button
                 type="submit"
                 disabled={isSubmitting}
