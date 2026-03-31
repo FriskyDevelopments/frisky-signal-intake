@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import wolfLogo from "@/assets/images/IMG_4983_2.PNG"
 
 type HeaderVariant = "intake" | "status" | "console"
 
@@ -62,14 +63,16 @@ export function SignalDeskHeader({
           className="space-y-8"
         >
           <div className="space-y-8">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 sm:w-14 sm:h-14">
-                <WolfEmblem />
+            <div className="space-y-1">
+              <div className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-muted-foreground/60">
+                ◇ Frisky Developments
               </div>
-              <div>
-                <div className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-muted-foreground/60 mb-1">
-                  ◇ Frisky Developments
-                </div>
+              <div className="flex items-center gap-3">
+                <img
+                  src={wolfLogo}
+                  alt="Frisky"
+                  className="w-8 h-8 opacity-85 object-contain select-none pointer-events-none"
+                />
                 <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#EAEAF0]">
                   Signal Desk
                 </h1>
