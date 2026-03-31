@@ -97,7 +97,7 @@ export function IntakePage() {
         <GlassPanel>
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
+              <Label htmlFor="name" className="text-sm font-medium text-[#888888]">
                 ◇ Identity
               </Label>
               <Input
@@ -106,12 +106,12 @@ export function IntakePage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
                 required
-                className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary"
+                className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact" className="text-sm font-medium">
+              <Label htmlFor="contact" className="text-sm font-medium text-[#888888]">
                 → Contact Channel
               </Label>
               <Input
@@ -120,16 +120,16 @@ export function IntakePage() {
                 onChange={(e) => setContact(e.target.value)}
                 placeholder="email@example.com or @handle"
                 required
-                className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary"
+                className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="request-type" className="text-sm font-medium">
+              <Label htmlFor="request-type" className="text-sm font-medium text-[#888888]">
                 ✦ Signal Type
               </Label>
               <Select value={requestType} onValueChange={(value) => setRequestType(value as RequestType)}>
-                <SelectTrigger id="request-type" className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary">
+                <SelectTrigger id="request-type" className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200">
                   <SelectValue placeholder="Select signal type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -143,7 +143,7 @@ export function IntakePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="project" className="text-sm font-medium text-muted-foreground">
+              <Label htmlFor="project" className="text-sm font-medium text-[#888888]">
                 Project / Brand <span className="text-xs">(optional)</span>
               </Label>
               <Input
@@ -151,12 +151,12 @@ export function IntakePage() {
                 value={project}
                 onChange={(e) => setProject(e.target.value)}
                 placeholder="Related project or brand"
-                className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary"
+                className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message" className="text-sm font-medium">
+              <Label htmlFor="message" className="text-sm font-medium text-[#888888]">
                 ✧ Signal Payload
               </Label>
               <Textarea
@@ -166,7 +166,7 @@ export function IntakePage() {
                 placeholder="Describe your request in detail"
                 rows={6}
                 required
-                className="transition-all duration-200 focus:shadow-[0_0_0_3px_oklch(0.68_0.15_45/0.15)] focus:border-primary resize-none"
+                className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200 resize-none"
               />
             </div>
 
@@ -174,7 +174,7 @@ export function IntakePage() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 bg-primary hover:bg-primary/90 transition-all duration-200 hover:shadow-[0_0_20px_oklch(0.68_0.15_45/0.25)]"
+                className="flex-1 bg-[#E67E22] border-2 border-white text-black font-medium hover:bg-white hover:text-[#E67E22] hover:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
               >
                 {isSubmitting ? "Transmitting..." : "✦ Transmit Signal"}
               </Button>
@@ -182,9 +182,9 @@ export function IntakePage() {
                 type="button"
                 variant="outline"
                 onClick={() => navigate("/status")}
-                className="sm:w-auto transition-all duration-200 hover:border-primary/50"
+                className="sm:w-auto bg-transparent border-2 border-[#333333] text-foreground hover:bg-transparent hover:border-[#333333] focus-visible:ring-0 transition-colors duration-200 [&_svg]:text-[#E67E22]"
               >
-                ◇ Track Signal
+                <span className="text-[#E67E22]">◇</span> Track Signal
               </Button>
             </div>
           </form>

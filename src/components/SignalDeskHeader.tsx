@@ -212,7 +212,7 @@ export function SignalDeskHeader({
         </motion.div>
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-white" />
     </div>
   )
 }
