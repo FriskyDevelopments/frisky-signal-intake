@@ -47,14 +47,23 @@ This is a dual-interface system with public intake and protected operator consol
 - **Progression**: Signal submitted → Webhook payload constructed → Discord API called → Embed appears in channel
 - **Success criteria**: Embed displays with #FF4500 accent, includes Ticket ID, type, contact, and snippet
 
+### Telegram Bot Integration
+- **Functionality**: Markdown-formatted message sent to Telegram channel/group via bot when new signal is submitted
+- **Purpose**: Alternative real-time operator alerting through Telegram
+- **Trigger**: User submits new signal
+- **Progression**: Signal submitted → Bot token and chat ID retrieved → Telegram API called with formatted message → Message appears in configured chat
+- **Success criteria**: Message displays with clear formatting, includes all signal details (Ticket ID, type, name, contact, project, message snippet), uses Telegram Markdown for readability
+
 ## Edge Case Handling
 
 - **Duplicate Ticket IDs**: Retry logic generates new ID until unique (max 10 attempts)
 - **Invalid Ticket ID Lookup**: Clean error state showing "Signal not found" with guidance to verify ID
 - **Discord Webhook Failure**: Silent failure logged to console, doesn't block signal submission
+- **Telegram Webhook Failure**: Silent failure logged to console, doesn't block signal submission
 - **Empty Signal Queue**: Elegant empty state in operator console with "No active signals" message
 - **Missing Optional Fields**: System handles nulls gracefully, displays "Not provided" in operator view
-- **Webhook URL Not Configured**: Webhook calls skipped if URL not set in storage
+- **Webhook URL Not Configured**: Discord and Telegram webhook calls skipped if credentials not set in storage
+- **Telegram Configuration Incomplete**: Both bot token and chat ID required; skips notification if either missing
 
 ## Design Direction
 

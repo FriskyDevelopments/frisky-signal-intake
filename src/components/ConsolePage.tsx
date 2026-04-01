@@ -20,7 +20,11 @@ export function ConsolePage() {
   const navigate = useNavigate()
   const [signals, setSignals] = useKV<Signal[]>("signals", [])
   const [webhookUrl, setWebhookUrl] = useKV<string>("discord-webhook-url", "")
+  const [telegramBotToken, setTelegramBotToken] = useKV<string>("telegram-bot-token", "")
+  const [telegramChatId, setTelegramChatId] = useKV<string>("telegram-chat-id", "")
   const [tempWebhookUrl, setTempWebhookUrl] = useState("")
+  const [tempTelegramBotToken, setTempTelegramBotToken] = useState("")
+  const [tempTelegramChatId, setTempTelegramChatId] = useState("")
   const [settingsOpen, setSettingsOpen] = useState(false)
   
   const [searchTerm, setSearchTerm] = useState("")
@@ -85,12 +89,16 @@ export function ConsolePage() {
 
   const handleSaveSettings = () => {
     setWebhookUrl(tempWebhookUrl)
+    setTelegramBotToken(tempTelegramBotToken)
+    setTelegramChatId(tempTelegramChatId)
     setSettingsOpen(false)
     toast.success("Settings saved")
   }
 
   const openSettings = () => {
     setTempWebhookUrl(webhookUrl || "")
+    setTempTelegramBotToken(telegramBotToken || "")
+    setTempTelegramChatId(telegramChatId || "")
     setSettingsOpen(true)
   }
 
@@ -150,7 +158,7 @@ export function ConsolePage() {
                   <DialogHeader>
                     <DialogTitle>Console Settings</DialogTitle>
                     <DialogDescription>
-                      Configure Discord webhook and other settings
+                      Configure webhook notifications for new signals
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 pt-4">
@@ -163,9 +171,42 @@ export function ConsolePage() {
                         placeholder="https://discord.com/api/webhooks/..."
                       />
                       <p className="text-xs text-muted-foreground">
-                        New signals will trigger Discord notifications
+                        Discord channel for signal notifications
                       </p>
                     </div>
+                    
+                    <div className="border-t pt-4">
+                      <h4 className="text-sm font-medium mb-3">Telegram Bot Configuration</h4>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="telegram-bot-token">Bot Token</Label>
+                          <Input
+                            id="telegram-bot-token"
+                            type="password"
+                            value={tempTelegramBotToken}
+                            onChange={(e) => setTempTelegramBotToken(e.target.value)}
+                            placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Get from @BotFather on Telegram
+                          </p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="telegram-chat-id">Chat ID</Label>
+                          <Input
+                            id="telegram-chat-id"
+                            value={tempTelegramChatId}
+                            onChange={(e) => setTempTelegramChatId(e.target.value)}
+                            placeholder="-1001234567890"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Channel or group chat ID for notifications
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <Button onClick={handleSaveSettings} className="w-full">
                       Save Settings
                     </Button>

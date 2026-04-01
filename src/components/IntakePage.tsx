@@ -11,6 +11,7 @@ import { SignalFooter } from "@/components/SignalFooter"
 import { Signal, RequestType } from "@/lib/types"
 import { generateUniqueTicketId } from "@/lib/ticket-generator"
 import { sendDiscordWebhook } from "@/lib/discord-webhook"
+import { sendTelegramWebhook } from "@/lib/telegram-webhook"
 import { useKV } from "@github/spark/hooks"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -27,6 +28,8 @@ export function IntakePage() {
   const formRef = useRef<HTMLFormElement>(null)
   const [signals, setSignals] = useKV<Signal[]>("signals", [])
   const [webhookUrl] = useKV<string>("discord-webhook-url", "")
+  const [telegramBotToken] = useKV<string>("telegram-bot-token", "")
+  const [telegramChatId] = useKV<string>("telegram-chat-id", "")
   
   const [name, setName] = useState("")
   const [requestType, setRequestType] = useState<RequestType | "">("")
@@ -88,6 +91,7 @@ export function IntakePage() {
       setSignals((current) => [newSignal, ...(current ?? [])])
       
       await sendDiscordWebhook(newSignal, webhookUrl)
+      await sendTelegramWebhook(newSignal, telegramBotToken, telegramChatId)
 
       navigate(`/submitted/${ticketId}`)
     } catch (error) {
