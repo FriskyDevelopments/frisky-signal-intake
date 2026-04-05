@@ -25,7 +25,7 @@ export function SignalFooter() {
               opacity-90
             "
           >
-            🐾 Forged with a Frisky Paw and a daring heart.
+            🐾 Forged with a frisky paw and a daring heart.
           </p>
           
           <div className="space-y-3">
