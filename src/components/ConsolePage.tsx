@@ -262,6 +262,8 @@ export function ConsolePage() {
                     <SelectItem value="Partnership / Collaboration">Partnership / Collaboration</SelectItem>
                     <SelectItem value="Custom Build Request">Custom Build Request</SelectItem>
                     <SelectItem value="General Inquiry">General Inquiry</SelectItem>
+                    <SelectItem value="STIX MΛGIC Support">STIX MΛGIC Support</SelectItem>
+                    <SelectItem value="ClipsFlow Support">ClipsFlow Support</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

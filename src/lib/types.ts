@@ -4,6 +4,8 @@ export type RequestType =
   | "Partnership / Collaboration"
   | "Custom Build Request"
   | "General Inquiry"
+  | "STIX MΛGIC Support"
+  | "ClipsFlow Support"
 
 export type SignalStatus = 
   | "SIGNAL_RECEIVED"
