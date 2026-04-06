@@ -47,7 +47,7 @@ To fully utilize the webhook alerting system, you must configure Discord and/or 
 4. Provide your Telegram Bot Token and Chat ID.
 5. Save settings.
 
-*Note: Webhook failures are handled silently to avoid blocking user submissions.*
+*Note: Webhook failures do not block user submissions, but failures may be logged for debugging or monitoring purposes.*
 
 ## Technologies
 
