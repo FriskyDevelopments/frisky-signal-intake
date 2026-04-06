@@ -1,0 +1,13 @@
+--- src/components/IntakePage.tsx
++++ src/components/IntakePage.tsx
+@@ -150,9 +150,7 @@
+                     className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
+                   />
+                   <p className="text-xs text-muted-foreground mt-2">
+-                    {language === "es"
+-                      ? "Ingresa tu nombre (Telegram no detectado)"
+-                      : "Enter your name (Telegram not detected)"}
++                    {t("form.identity.notConnected")}
+                   </p>
+                 </div>
+               )}

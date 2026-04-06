@@ -1,0 +1,59 @@
+--- src/components/SubmittedPage.tsx
++++ src/components/SubmittedPage.tsx
+@@ -4,9 +4,11 @@
+ import { SignalFooter } from "@/components/SignalFooter"
+ import { CheckCircle } from "@phosphor-icons/react"
+ import { motion } from "framer-motion"
++import { useLanguage } from "@/lib/i18n"
+
+ export function SubmittedPage() {
+   const { ticketId } = useParams()
+   const navigate = useNavigate()
++  const { t } = useLanguage()
+
+   return (
+@@ -21,12 +23,12 @@
+           </div>
+
+           <h1 className="text-3xl font-semibold mb-4">
+-            Signal Received
++            {t("submitted.title")}
+           </h1>
+
+           <div className="space-y-4 mb-8">
+             <div className="glass-panel inline-block px-6 py-3 rounded">
+               <p className="text-sm text-muted-foreground mb-1 uppercase tracking-wider">
+-                Ticket ID
++                {t("submitted.ticketId")}
+               </p>
+               <p className="text-2xl font-semibold tracking-tight">
+@@ -35,17 +37,17 @@
+             </div>
+
+             <div className="space-y-2 text-muted-foreground">
+-              <p>Your request is now in the system.</p>
+-              <p>Track it with your Ticket ID.</p>
+-              <p className="text-sm">No DMs. The desk will handle it from here.</p>
++              <p>{t("submitted.desc1")}</p>
++              <p>{t("submitted.desc2")}</p>
++              <p className="text-sm">{t("submitted.desc3")}</p>
+             </div>
+           </div>
+
+           <div className="flex gap-4 justify-center">
+             <Button onClick={() => navigate("/status")} size="lg">
+-              Check Request Status
++              {t("action.checkStatus")}
+             </Button>
+             <Button onClick={() => navigate("/")} variant="outline" size="lg">
+-              Submit Another
++              {t("action.submitAnother")}
+             </Button>
+           </div>
+@@ -53,7 +55,7 @@
+
+         <div className="mt-6 text-center text-sm text-muted-foreground">
+-          <p>Save your Ticket ID to check status at any time.</p>
++          <p>{t("submitted.saveHint")}</p>
+         </div>
+       </motion.div>

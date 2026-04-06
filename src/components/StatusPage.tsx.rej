@@ -1,0 +1,15 @@
+--- src/components/StatusPage.tsx
++++ src/components/StatusPage.tsx
+@@ -9,10 +9,12 @@
+ import { Signal } from "@/lib/types"
+ import { useKV } from "@github/spark/hooks"
+ import { motion } from "framer-motion"
++import { useLanguage } from "@/lib/i18n"
+
+ export function StatusPage() {
+   const navigate = useNavigate()
+   const [signals] = useKV<Signal[]>("signals", [])
+   const [ticketId, setTicketId] = useState("")
+   const [searchedSignal, setSearchedSignal] = useState<Signal | null>(null)
+   const [notFound, setNotFound] = useState(false)
++  const { t } = useLanguage()

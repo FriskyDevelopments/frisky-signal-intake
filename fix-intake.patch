@@ -1,0 +1,126 @@
+--- src/components/IntakePage.tsx
++++ src/components/IntakePage.tsx
+@@ -62,7 +62,7 @@
+
+     if (!name || !requestType || !message) {
+-      toast.error("Please fill in all required fields")
++      toast.error(t("error.fillRequired"))
+       return
+     }
+
+@@ -96,7 +96,7 @@
+       navigate(`/submitted/${ticketId}`)
+     } catch (error) {
+-      toast.error("Failed to submit signal. Please try again.")
++      toast.error(t("error.submitFailed"))
+       console.error(error)
+     } finally {
+       setIsSubmitting(false)
+@@ -125,7 +125,7 @@
+           <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
+             <div className="space-y-2">
+               <Label htmlFor="name" className="text-sm font-medium text-[#888888]">
+-                ◇ Identity
++                {t("form.identity")}
+               </Label>
+               {telegramUser ? (
+                 <div className="relative">
+@@ -138,7 +138,7 @@
+                   />
+                   <p className="text-xs text-muted-foreground mt-2">
+-                    Connected via Telegram
++                    {t("form.identity.connected")}
+                   </p>
+                 </div>
+               ) : (
+@@ -148,14 +148,12 @@
+                     value={name}
+                     onChange={(e) => setName(e.target.value)}
+-                    placeholder="Your name"
++                    placeholder={t("form.identity.placeholder")}
+                     required
+                     className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
+                   />
+                   <p className="text-xs text-muted-foreground mt-2">
+-                    {language === "es"
+-                      ? "Ingresa tu nombre (Telegram no detectado)"
+-                      : "Enter your name (Telegram not detected)"}
++                    {t("form.identity.notConnected")}
+                   </p>
+                 </div>
+               )}
+@@ -163,11 +161,11 @@
+
+             <div className="space-y-2">
+               <Label htmlFor="request-type" className="text-sm font-medium text-[#888888]">
+-                ✦ Signal Type
++                {t("form.signalType")}
+               </Label>
+               <Select value={requestType} onValueChange={(value) => setRequestType(value as RequestType)}>
+                 <SelectTrigger id="request-type" className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200">
+-                  <SelectValue placeholder="Select signal type" />
++                  <SelectValue placeholder={t("form.signalType.placeholder")} />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="Technical Support">Technical Support</SelectItem>
+@@ -181,33 +179,33 @@
+
+             <div className="space-y-2">
+               <Label htmlFor="project" className="text-sm font-medium text-[#888888]">
+-                Project / Brand <span className="text-xs">(optional)</span>
++                {t("form.project")} <span className="text-xs">{t("form.project.optional")}</span>
+               </Label>
+               <Input
+                 id="project"
+                 value={project}
+                 onChange={(e) => setProject(e.target.value)}
+-                placeholder="Related project or brand"
++                placeholder={t("form.project.placeholder")}
+                 className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
+               />
+             </div>
+
+             <div className="space-y-2">
+               <Label htmlFor="message" className="text-sm font-medium text-[#888888]">
+-                ✧ Signal Payload
++                {t("form.payload")}
+               </Label>
+               <Textarea
+                 id="message"
+                 value={message}
+                 onChange={(e) => setMessage(e.target.value)}
+-                placeholder="Describe your request, issue, or idea…"
++                placeholder={t("form.payload.placeholder")}
+                 rows={8}
+                 required
+                 className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200 resize-none py-3"
+               />
+               <p className="text-xs text-muted-foreground">
+-                What do you want us to do or help with?
++                {t("form.payload.help")}
+               </p>
+             </div>
+
+             <div className="pt-2 pb-4">
+               <p className="text-xs text-muted-foreground text-center">
+-                No DMs. Signals are routed through the system.
++                {t("form.noDMs")}
+               </p>
+             </div>
+
+@@ -219,7 +217,7 @@
+                 className="flex-1 bg-[#E67E22] border-2 border-white text-black font-medium hover:bg-white hover:text-[#E67E22] hover:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
+               >
+-                {isSubmitting ? "Transmitting..." : "✦ Transmit Signal"}
++                {isSubmitting ? t("action.transmitting") : `✦ ${t("action.transmit")}`}
+               </Button>
+               <Button
+                 type="button"
+@@ -228,7 +226,7 @@
+                 className="sm:w-auto bg-transparent border-2 border-[#333333] text-foreground hover:bg-transparent hover:border-[#333333] focus-visible:ring-0 transition-colors duration-200 [&_svg]:text-[#E67E22]"
+               >
+-                <span className="text-[#E67E22]">◇</span> Track Signal
++                <span className="text-[#E67E22]">◇</span> {t("action.track")}
+               </Button>
+             </div>
+           </form>

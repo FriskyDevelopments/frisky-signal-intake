@@ -1,0 +1,112 @@
+--- src/components/SignalDeskHeader.tsx
++++ src/components/SignalDeskHeader.tsx
+@@ -2,6 +2,8 @@
+ import { motion } from "framer-motion"
+ import { cn } from "@/lib/utils"
+ import wolfLogo from "@/assets/images/IMG_4983_2.PNG"
++import { Translate } from "@phosphor-icons/react"
++import { useLanguage } from "@/lib/i18n"
+
+ type HeaderVariant = "intake" | "status" | "console"
+
+@@ -20,6 +22,8 @@
+   onOpenQueue,
+   onActiveSignals
+ }: SignalDeskHeaderProps) {
++  const { language, setLanguage, t } = useLanguage()
++
+   return (
+     <div className="relative w-full overflow-hidden">
+       <div className="absolute inset-0 bg-gradient-to-b from-[#0B0F1A] via-[#11131A] to-[#161925]" />
+@@ -51,6 +55,20 @@
+         }}
+       />
+
++      <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-50">
++        <Button
++          variant="ghost"
++          size="sm"
++          className="text-muted-foreground hover:text-foreground hover:bg-white/5"
++          onClick={() => setLanguage(language === "en" ? "es" : "en")}
++        >
++          <Translate className="mr-2" size={16} />
++          <span className="uppercase text-xs font-medium tracking-wider">
++            {language === "en" ? "ES" : "EN"}
++          </span>
++        </Button>
++      </div>
++
+       <div className="relative max-w-5xl mx-auto px-6 sm:px-8 py-24 sm:py-32">
+         <motion.div
+           initial={{ opacity: 0, y: 20 }}
+@@ -69,12 +87,12 @@
+                     -translate-y-[1px]
+                   "
+                 />
+                 <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-[#EAEAF0]">
+-                  <span className="font-semibold bg-gradient-to-r from-[oklch(0.65_0.25_265)] via-[oklch(0.60_0.22_275)] to-[oklch(0.55_0.20_285)] bg-clip-text text-transparent drop-shadow-[0_0_10px_oklch(0.60_0.22_275/0.25)]">Signal</span> Desk
++                  <span className="font-semibold bg-gradient-to-r from-[oklch(0.65_0.25_265)] via-[oklch(0.60_0.22_275)] to-[oklch(0.55_0.20_285)] bg-clip-text text-transparent drop-shadow-[0_0_10px_oklch(0.60_0.22_275/0.25)]">{t("app.title").split(" ")[0]}</span> {t("app.title").split(" ")[1] || ""}
+                 </h1>
+               </div>
+             </div>
+
+             <p className="text-sm sm:text-base text-muted-foreground/80 max-w-2xl">
+-              Transmit • Track • Route Signals
++              {t("app.subtitle")}
+             </p>
+           </div>
+
+@@ -89,7 +107,7 @@
+                   "hover:-translate-y-0.5"
+                 )}
+               >
+                 <span className="mr-2">✦</span>
+-                Transmit Signal
++                {t("action.transmit")}
+               </Button>
+               <Button
+                 onClick={onTrack}
+@@ -101,7 +119,7 @@
+                 )}
+               >
+                 <span className="mr-2">◇</span>
+-                Track Signal
++                {t("action.track")}
+               </Button>
+             </>
+           )}
+@@ -118,7 +136,7 @@
+                 )}
+               >
+                 <span className="mr-2">◇</span>
+-                Track Signal
++                {t("action.track")}
+               </Button>
+               <Button
+                 onClick={onTransmit}
+@@ -130,7 +148,7 @@
+                 )}
+               >
+                 <span className="mr-2">✦</span>
+-                Transmit Signal
++                {t("action.transmit")}
+               </Button>
+             </>
+           )}
+@@ -146,7 +164,7 @@
+                 )}
+               >
+-                Open Queue
++                {t("action.openQueue")}
+               </Button>
+               <Button
+                 onClick={onActiveSignals}
+@@ -156,7 +174,7 @@
+                   "transition-all duration-300"
+                 )}
+               >
+-                Active Signals
++                {t("action.activeSignals")}
+               </Button>
+             </>
+           )}

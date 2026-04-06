@@ -11,7 +11,6 @@ import { MagnifyingGlass } from "@phosphor-icons/react"
 import { Signal } from "@/lib/types"
 import { useKV } from "@github/spark/hooks"
 import { motion } from "framer-motion"
-import { useLanguage } from "@/lib/i18n"
 
 export function StatusPage() {
   const navigate = useNavigate()
@@ -19,13 +18,12 @@ export function StatusPage() {
   const [ticketId, setTicketId] = useState("")
   const [searchedSignal, setSearchedSignal] = useState<Signal | null>(null)
   const [notFound, setNotFound] = useState(false)
-  const { t } = useLanguage()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const signal = signals?.find(s => s.ticketId.toUpperCase() === ticketId.toUpperCase())
-    
+
     if (signal) {
       setSearchedSignal(signal)
       setNotFound(false)
@@ -37,12 +35,12 @@ export function StatusPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SignalDeskHeader 
+      <SignalDeskHeader
         variant="status"
         onTrack={() => {}}
         onTransmit={() => navigate("/")}
       />
-      
+
       <div className="p-6 sm:p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -54,7 +52,7 @@ export function StatusPage() {
           <GlassPanel className="mb-8">
             <form onSubmit={handleSearch} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="ticket-id">{t("submitted.ticketId")}</Label>
+                <Label htmlFor="ticket-id">Ticket ID</Label>
                 <div className="flex gap-2">
                   <Input
                     id="ticket-id"
@@ -66,7 +64,7 @@ export function StatusPage() {
                   />
                   <Button type="submit">
                     <MagnifyingGlass className="mr-2" />
-                    {t("action.search")}
+                    Search
                   </Button>
                 </div>
               </div>
@@ -80,7 +78,7 @@ export function StatusPage() {
             >
               <GlassPanel className="text-center">
                 <p className="text-muted-foreground">
-                  {t("status.notFound")}
+                  Signal not found. Please verify your Ticket ID and try again.
                 </p>
               </GlassPanel>
             </motion.div>

@@ -31,7 +31,7 @@ export function IntakePage() {
   const [webhookUrl] = useKV<string>("discord-webhook-url", "")
   const [telegramBotToken] = useKV<string>("telegram-bot-token", "")
   const [telegramChatId] = useKV<string>("telegram-chat-id", "")
-  
+
   const [name, setName] = useState("")
   const [requestType, setRequestType] = useState<RequestType | "">("")
   const [project, setProject] = useState("")
@@ -39,7 +39,7 @@ export function IntakePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [telegramUser, setTelegramUser] = useState<TelegramUser | null>(null)
   const { t, setLanguage, language: currentLanguage } = useLanguage();
-
+  const [language, setLanguageLocal] = useState<"en" | "es">("en")
 
   useEffect(() => {
     const tg = (window as any).Telegram?.WebApp
@@ -47,8 +47,8 @@ export function IntakePage() {
       const user = tg.initDataUnsafe?.user
       if (user) {
         setTelegramUser(user)
-        const displayName = user.username 
-          ? `@${user.username}` 
+        const displayName = user.username
+          ? `@${user.username}`
           : `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}`
         setName(displayName)
       }
@@ -58,7 +58,7 @@ export function IntakePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!name || !requestType || !message) {
       toast.error(t("error.fillRequired"))
       return
@@ -91,7 +91,7 @@ export function IntakePage() {
       }
 
       setSignals((current) => [newSignal, ...(current ?? [])])
-      
+
       await sendDiscordWebhook(newSignal, webhookUrl)
       await sendTelegramWebhook(newSignal, telegramBotToken, telegramChatId)
 
@@ -110,12 +110,12 @@ export function IntakePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SignalDeskHeader 
+      <SignalDeskHeader
         variant="intake"
         onTransmit={scrollToForm}
         onTrack={() => navigate("/status")}
       />
-      
+
       <div className="p-6 sm:p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -153,7 +153,9 @@ export function IntakePage() {
                     className="bg-[#0A0A0A] border-2 border-[#333333] focus:border-[#E67E22] focus-visible:ring-0 transition-colors duration-200"
                   />
                   <p className="text-xs text-muted-foreground mt-2">
-                    {t("form.identity.notConnected")}
+                    {language === "es"
+                      ? "Ingresa tu nombre (Telegram no detectado)"
+                      : "Enter your name (Telegram not detected)"}
                   </p>
                 </div>
               )}
