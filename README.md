@@ -29,7 +29,7 @@ This application adheres to strict brand identity terms. The following terms mus
    `npm install`
 
 2. Start the development server (runs on port 5000):
-   `npm start dev &`
+   npm run dev
 
 ### Building for Production
 
