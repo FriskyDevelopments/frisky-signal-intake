@@ -8,7 +8,7 @@ A premium signal intake and operator console system for managing client requests
 
 - **Public Signal Submission**: Anonymous form for submitting support/inquiry signals with structured fields.
 - **Status Check Interface**: Public page where users enter their Ticket ID to view vertical progress timeline with system-style state labels.
-- **Operator Console Dashboard**: Protected internal dashboard with dense signal queue, filtering, search, quick actions, CSV export, and state management.
+- **Operator Console Dashboard**: Protected internal dashboard with dense signal queue, filtering, search, quick actions, and state management.
 - **Signal Detail View**: Full signal information with system event log and internal notes interface.
 - **Discord & Telegram Integrations**: Real-time webhook notifications alerting operators of new signal submissions.
 - **Local / KV State Management**: Uses Spark KV storage for signal states and history logs.
@@ -29,7 +29,7 @@ This application adheres to strict brand identity terms. The following terms mus
    `npm install`
 
 2. Start the development server (runs on port 5000):
-   `npm run dev`
+   `npm start dev &`
 
 ### Building for Production
 
@@ -47,7 +47,7 @@ To fully utilize the webhook alerting system, you must configure Discord and/or 
 4. Provide your Telegram Bot Token and Chat ID.
 5. Save settings.
 
-*Note: Webhook failures do not block user submissions, but failures may be logged for debugging or monitoring purposes.*
+*Note: Webhook failures are handled silently to avoid blocking user submissions.*
 
 ## Technologies
 
