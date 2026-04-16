@@ -16,6 +16,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
+// Pre-allocate date formatter outside component scope to avoid expensive repeated instantiation
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit"
+})
+
 export function ConsolePage() {
   const navigate = useNavigate()
   const [signals, setSignals] = useKV<Signal[]>("signals", [])
@@ -34,16 +42,21 @@ export function ConsolePage() {
   const filteredSignals = useMemo(() => {
     if (!signals) return []
     
-    return signals.filter(signal => {
-      const matchesSearch = 
-        signal.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        signal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        signal.contact.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesStatus = statusFilter === "ALL" || signal.status === statusFilter
-      const matchesType = typeFilter === "ALL" || signal.requestType === typeFilter
+    const searchLower = searchTerm.toLowerCase()
 
-      return matchesSearch && matchesStatus && matchesType
+    return signals.filter(signal => {
+      // Early-exit for status and type filters to avoid expensive string operations
+      if (statusFilter !== "ALL" && signal.status !== statusFilter) return false
+      if (typeFilter !== "ALL" && signal.requestType !== typeFilter) return false
+
+      if (!searchLower) return true
+
+      // Perform search on lowercased fields with hoisted searchTerm
+      return (
+        signal.ticketId.toLowerCase().includes(searchLower) ||
+        signal.name.toLowerCase().includes(searchLower) ||
+        signal.contact.toLowerCase().includes(searchLower)
+      )
     })
   }, [signals, searchTerm, statusFilter, typeFilter])
 
@@ -103,13 +116,7 @@ export function ConsolePage() {
   }
 
   const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp)
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    })
+    return dateFormatter.format(new Date(timestamp))
   }
 
   const scrollToQueue = () => {
@@ -117,9 +124,11 @@ export function ConsolePage() {
     element?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
-  const activeSignalsCount = filteredSignals.filter(s => 
-    s.status !== "RESOLUTION_COMPLETE"
-  ).length
+  const activeSignalsCount = useMemo(() => {
+    return filteredSignals.filter(s =>
+      s.status !== "RESOLUTION_COMPLETE"
+    ).length
+  }, [filteredSignals])
 
   return (
     <div className="min-h-screen bg-background">
