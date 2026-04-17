@@ -39,26 +39,44 @@ export function ConsolePage() {
   const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
 
-  const filteredSignals = useMemo(() => {
+  // Pre-calculate lowercased strings and formatted dates to avoid repeating them in the filter loop or during re-renders
+  const processedSignals = useMemo(() => {
     if (!signals) return []
-    
+    return signals.map(signal => ({
+      ...signal,
+      ticketIdLower: signal.ticketId.toLowerCase(),
+      nameLower: signal.name.toLowerCase(),
+      contactLower: signal.contact.toLowerCase(),
+      formattedCreatedAt: dateFormatter.format(new Date(signal.createdAt))
+    }))
+  }, [signals])
+
+  const { filteredSignals, activeSignalsCount } = useMemo(() => {
     const searchLower = searchTerm.toLowerCase()
+    const filtered: typeof processedSignals = []
+    let activeCount = 0
 
-    return signals.filter(signal => {
-      // Early-exit for status and type filters to avoid expensive string operations
-      if (statusFilter !== "ALL" && signal.status !== statusFilter) return false
-      if (typeFilter !== "ALL" && signal.requestType !== typeFilter) return false
+    for (const signal of processedSignals) {
+      // Early-exit for status and type filters to avoid expensive checks
+      if (statusFilter !== "ALL" && signal.status !== statusFilter) continue
+      if (typeFilter !== "ALL" && signal.requestType !== typeFilter) continue
 
-      if (!searchLower) return true
+      const matchesSearch = !searchLower ||
+        signal.ticketIdLower.includes(searchLower) ||
+        signal.nameLower.includes(searchLower) ||
+        signal.contactLower.includes(searchLower)
 
-      // Perform search on lowercased fields with hoisted searchTerm
-      return (
-        signal.ticketId.toLowerCase().includes(searchLower) ||
-        signal.name.toLowerCase().includes(searchLower) ||
-        signal.contact.toLowerCase().includes(searchLower)
-      )
-    })
-  }, [signals, searchTerm, statusFilter, typeFilter])
+      if (matchesSearch) {
+        filtered.push(signal)
+        // Count active signals in the same pass
+        if (signal.status !== "RESOLUTION_COMPLETE") {
+          activeCount++
+        }
+      }
+    }
+
+    return { filteredSignals: filtered, activeSignalsCount: activeCount }
+  }, [processedSignals, searchTerm, statusFilter, typeFilter])
 
   const handleMarkAsViewed = (signalId: string) => {
     setSignals((current) => 
@@ -115,20 +133,10 @@ export function ConsolePage() {
     setSettingsOpen(true)
   }
 
-  const formatTimestamp = (timestamp: number) => {
-    return dateFormatter.format(new Date(timestamp))
-  }
-
   const scrollToQueue = () => {
     const element = document.getElementById('signal-queue')
     element?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
-
-  const activeSignalsCount = useMemo(() => {
-    return filteredSignals.filter(s =>
-      s.status !== "RESOLUTION_COMPLETE"
-    ).length
-  }, [filteredSignals])
 
   return (
     <div className="min-h-screen bg-background">
@@ -325,7 +333,7 @@ export function ConsolePage() {
                           <StatusBadge status={signal.status} />
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {formatTimestamp(signal.createdAt)}
+                          {signal.formattedCreatedAt}
                         </TableCell>
                       </TableRow>
                     ))}
