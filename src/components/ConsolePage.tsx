@@ -39,26 +39,40 @@ export function ConsolePage() {
   const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
 
+  // Pre-calculate lowercased fields for faster searching
+  // This index only updates when the signals array changes, moving O(N) string conversions
+  // out of the high-frequency filter loop that runs on every keystroke.
+  const indexedSignals = useMemo(() => {
+    return (signals || []).map(signal => ({
+      ...signal,
+      searchIndex: {
+        ticketId: signal.ticketId.toLowerCase(),
+        name: signal.name.toLowerCase(),
+        contact: signal.contact.toLowerCase()
+      }
+    }))
+  }, [signals])
+
   const filteredSignals = useMemo(() => {
-    if (!signals) return []
+    if (!indexedSignals) return []
     
     const searchLower = searchTerm.toLowerCase()
 
-    return signals.filter(signal => {
+    return indexedSignals.filter(signal => {
       // Early-exit for status and type filters to avoid expensive string operations
       if (statusFilter !== "ALL" && signal.status !== statusFilter) return false
       if (typeFilter !== "ALL" && signal.requestType !== typeFilter) return false
 
       if (!searchLower) return true
 
-      // Perform search on lowercased fields with hoisted searchTerm
+      // Use pre-calculated search index to avoid O(N) string conversions on every render
       return (
-        signal.ticketId.toLowerCase().includes(searchLower) ||
-        signal.name.toLowerCase().includes(searchLower) ||
-        signal.contact.toLowerCase().includes(searchLower)
+        signal.searchIndex.ticketId.includes(searchLower) ||
+        signal.searchIndex.name.includes(searchLower) ||
+        signal.searchIndex.contact.includes(searchLower)
       )
     })
-  }, [signals, searchTerm, statusFilter, typeFilter])
+  }, [indexedSignals, searchTerm, statusFilter, typeFilter])
 
   const handleMarkAsViewed = (signalId: string) => {
     setSignals((current) => 
