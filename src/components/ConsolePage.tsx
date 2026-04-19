@@ -16,6 +16,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
+// Pre-allocate date formatter outside component scope to avoid expensive repeated instantiation
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit"
+})
+
 export function ConsolePage() {
   const navigate = useNavigate()
   const [signals, setSignals] = useKV<Signal[]>("signals", [])
@@ -31,21 +39,40 @@ export function ConsolePage() {
   const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
 
-  const filteredSignals = useMemo(() => {
-    if (!signals) return []
-    
-    return signals.filter(signal => {
-      const matchesSearch = 
-        signal.ticketId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        signal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        signal.contact.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      const matchesStatus = statusFilter === "ALL" || signal.status === statusFilter
-      const matchesType = typeFilter === "ALL" || signal.requestType === typeFilter
+  // Pre-calculate lowercased fields for faster searching
+  // This index only updates when the signals array changes, moving O(N) string conversions
+  // out of the high-frequency filter loop that runs on every keystroke.
+  const indexedSignals = useMemo(() => {
+    return (signals || []).map(signal => ({
+      ...signal,
+      searchIndex: {
+        ticketId: signal.ticketId.toLowerCase(),
+        name: signal.name.toLowerCase(),
+        contact: signal.contact.toLowerCase()
+      }
+    }))
+  }, [signals])
 
-      return matchesSearch && matchesStatus && matchesType
+  const filteredSignals = useMemo(() => {
+    if (!indexedSignals) return []
+    
+    const searchLower = searchTerm.toLowerCase()
+
+    return indexedSignals.filter(signal => {
+      // Early-exit for status and type filters to avoid expensive string operations
+      if (statusFilter !== "ALL" && signal.status !== statusFilter) return false
+      if (typeFilter !== "ALL" && signal.requestType !== typeFilter) return false
+
+      if (!searchLower) return true
+
+      // Use pre-calculated search index to avoid O(N) string conversions on every render
+      return (
+        signal.searchIndex.ticketId.includes(searchLower) ||
+        signal.searchIndex.name.includes(searchLower) ||
+        signal.searchIndex.contact.includes(searchLower)
+      )
     })
-  }, [signals, searchTerm, statusFilter, typeFilter])
+  }, [indexedSignals, searchTerm, statusFilter, typeFilter])
 
   const handleMarkAsViewed = (signalId: string) => {
     setSignals((current) => 
@@ -103,13 +130,7 @@ export function ConsolePage() {
   }
 
   const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp)
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    })
+    return dateFormatter.format(new Date(timestamp))
   }
 
   const scrollToQueue = () => {
@@ -117,9 +138,11 @@ export function ConsolePage() {
     element?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
-  const activeSignalsCount = filteredSignals.filter(s => 
-    s.status !== "RESOLUTION_COMPLETE"
-  ).length
+  const activeSignalsCount = useMemo(() => {
+    return filteredSignals.filter(s =>
+      s.status !== "RESOLUTION_COMPLETE"
+    ).length
+  }, [filteredSignals])
 
   return (
     <div className="min-h-screen bg-background">
