@@ -1,15 +1,20 @@
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 export function generateTicketId(): string {
   const digits = Math.floor(1000 + Math.random() * 9000)
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  const letter = letters[Math.floor(Math.random() * letters.length)]
+  const letter = LETTERS[Math.floor(Math.random() * LETTERS.length)]
   return `FRK-${digits}-${letter}`
 }
 
-export async function generateUniqueTicketId(existingIds: string[]): Promise<string> {
+/**
+ * Generates a unique ticket ID by checking against a Set of existing IDs.
+ * Using a Set ensures O(1) lookup time for uniqueness checks.
+ */
+export async function generateUniqueTicketId(existingIds: Set<string>): Promise<string> {
   let attempts = 0
   let ticketId = generateTicketId()
   
-  while (existingIds.includes(ticketId) && attempts < 10) {
+  while (existingIds.has(ticketId) && attempts < 10) {
     ticketId = generateTicketId()
     attempts++
   }

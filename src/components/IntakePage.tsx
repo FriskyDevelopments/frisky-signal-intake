@@ -65,8 +65,9 @@ export function IntakePage() {
     setIsSubmitting(true)
 
     try {
-      const existingIds = signals?.map(s => s.ticketId) ?? []
-      const ticketId = await generateUniqueTicketId(existingIds)
+      // Create a Set for O(1) lookup performance when checking for ticket ID uniqueness
+      const existingIdSet = new Set(signals?.map(s => s.ticketId) ?? [])
+      const ticketId = await generateUniqueTicketId(existingIdSet)
       const now = Date.now()
 
       const newSignal: Signal = {
