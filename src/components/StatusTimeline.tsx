@@ -1,6 +1,6 @@
 import { SignalStatus } from "@/lib/types"
 import { CheckCircle, Clock } from "@phosphor-icons/react"
-import { cn } from "@/lib/utils"
+import { cn, shortDateFormatter } from "@/lib/utils"
 
 interface StatusTimelineProps {
   currentStatus: SignalStatus
@@ -20,13 +20,7 @@ export function StatusTimeline({ currentStatus, lastUpdated, className }: Status
   const currentIndex = statusOrder.indexOf(currentStatus)
   
   const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp)
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    })
+    return shortDateFormatter.format(new Date(timestamp))
   }
 
   return (
