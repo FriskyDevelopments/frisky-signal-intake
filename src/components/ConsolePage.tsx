@@ -10,19 +10,12 @@ import { StatusBadge } from "@/components/StatusBadge"
 import { MagnifyingGlass, Funnel, Export, Gear } from "@phosphor-icons/react"
 import { Signal, SignalStatus, RequestType } from "@/lib/types"
 import { useKV } from "@github/spark/hooks"
+import { shortDateFormatter } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-
-// Pre-allocate date formatter outside component scope to avoid expensive repeated instantiation
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit"
-})
 
 export function ConsolePage() {
   const navigate = useNavigate()
@@ -39,12 +32,12 @@ export function ConsolePage() {
   const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
 
-  // Pre-calculate lowercased fields for faster searching
-  // This index only updates when the signals array changes, moving O(N) string conversions
-  // out of the high-frequency filter loop that runs on every keystroke.
+  // Index signals with pre-calculated fields to optimize filtering and rendering performance.
+  // This index only updates when the signals array changes.
   const indexedSignals = useMemo(() => {
     return (signals || []).map(signal => ({
       ...signal,
+      formattedDate: shortDateFormatter.format(new Date(signal.createdAt)),
       searchIndex: {
         ticketId: signal.ticketId.toLowerCase(),
         name: signal.name.toLowerCase(),
@@ -53,25 +46,40 @@ export function ConsolePage() {
     }))
   }, [signals])
 
-  const filteredSignals = useMemo(() => {
-    if (!indexedSignals) return []
+  // Single-pass filtering and counting logic to minimize array traversals.
+  // Performs O(N) filtering and O(N) counting in a single loop.
+  const { filteredSignals, activeSignalsCount } = useMemo(() => {
+    if (!indexedSignals) return { filteredSignals: [], activeSignalsCount: 0 }
     
     const searchLower = searchTerm.toLowerCase()
+    const result: typeof indexedSignals = []
+    let activeCount = 0
 
-    return indexedSignals.filter(signal => {
-      // Early-exit for status and type filters to avoid expensive string operations
-      if (statusFilter !== "ALL" && signal.status !== statusFilter) return false
-      if (typeFilter !== "ALL" && signal.requestType !== typeFilter) return false
+    for (const signal of indexedSignals) {
+      let isMatch = true
 
-      if (!searchLower) return true
+      // Early-exit for status and type filters
+      if (statusFilter !== "ALL" && signal.status !== statusFilter) isMatch = false
+      if (isMatch && typeFilter !== "ALL" && signal.requestType !== typeFilter) isMatch = false
 
-      // Use pre-calculated search index to avoid O(N) string conversions on every render
-      return (
-        signal.searchIndex.ticketId.includes(searchLower) ||
-        signal.searchIndex.name.includes(searchLower) ||
-        signal.searchIndex.contact.includes(searchLower)
-      )
-    })
+      if (isMatch && searchLower) {
+        // Use pre-calculated search index to avoid O(N) string conversions during keystrokes
+        isMatch = (
+          signal.searchIndex.ticketId.includes(searchLower) ||
+          signal.searchIndex.name.includes(searchLower) ||
+          signal.searchIndex.contact.includes(searchLower)
+        )
+      }
+
+      if (isMatch) {
+        result.push(signal)
+        if (signal.status !== "RESOLUTION_COMPLETE") {
+          activeCount++
+        }
+      }
+    }
+
+    return { filteredSignals: result, activeSignalsCount: activeCount }
   }, [indexedSignals, searchTerm, statusFilter, typeFilter])
 
   const handleMarkAsViewed = (signalId: string) => {
@@ -129,20 +137,10 @@ export function ConsolePage() {
     setSettingsOpen(true)
   }
 
-  const formatTimestamp = (timestamp: number) => {
-    return dateFormatter.format(new Date(timestamp))
-  }
-
   const scrollToQueue = () => {
     const element = document.getElementById('signal-queue')
     element?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
-
-  const activeSignalsCount = useMemo(() => {
-    return filteredSignals.filter(s =>
-      s.status !== "RESOLUTION_COMPLETE"
-    ).length
-  }, [filteredSignals])
 
   return (
     <div className="min-h-screen bg-background">
@@ -339,7 +337,7 @@ export function ConsolePage() {
                           <StatusBadge status={signal.status} />
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">
-                          {formatTimestamp(signal.createdAt)}
+                          {signal.formattedDate}
                         </TableCell>
                       </TableRow>
                     ))}
