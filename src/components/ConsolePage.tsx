@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback, useDeferredValue } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,6 +29,7 @@ export function ConsolePage() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   
   const [searchTerm, setSearchTerm] = useState("")
+  const deferredSearchTerm = useDeferredValue(searchTerm)
   const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
 
@@ -37,7 +38,7 @@ export function ConsolePage() {
   const indexedSignals = useMemo(() => {
     return (signals || []).map(signal => ({
       ...signal,
-      formattedDate: shortDateFormatter.format(new Date(signal.createdAt)),
+      formattedDate: shortDateFormatter.format(signal.createdAt),
       searchIndex: {
         ticketId: signal.ticketId.toLowerCase(),
         name: signal.name.toLowerCase(),
@@ -51,7 +52,7 @@ export function ConsolePage() {
   const { filteredSignals, activeSignalsCount } = useMemo(() => {
     if (!indexedSignals) return { filteredSignals: [], activeSignalsCount: 0 }
     
-    const searchLower = searchTerm.toLowerCase()
+    const searchLower = deferredSearchTerm.toLowerCase()
     const result: typeof indexedSignals = []
     let activeCount = 0
 
@@ -80,7 +81,7 @@ export function ConsolePage() {
     }
 
     return { filteredSignals: result, activeSignalsCount: activeCount }
-  }, [indexedSignals, searchTerm, statusFilter, typeFilter])
+  }, [indexedSignals, deferredSearchTerm, statusFilter, typeFilter])
 
   const handleMarkAsViewed = (signalId: string) => {
     setSignals((current) => 
@@ -137,10 +138,10 @@ export function ConsolePage() {
     setSettingsOpen(true)
   }
 
-  const scrollToQueue = () => {
+  const scrollToQueue = useCallback(() => {
     const element = document.getElementById('signal-queue')
     element?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">

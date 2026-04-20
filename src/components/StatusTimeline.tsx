@@ -20,7 +20,7 @@ export function StatusTimeline({ currentStatus, lastUpdated, className }: Status
   const currentIndex = statusOrder.indexOf(currentStatus)
   
   const formatTimestamp = (timestamp: number) => {
-    return shortDateFormatter.format(new Date(timestamp))
+    return shortDateFormatter.format(timestamp)
   }
 
   return (
