@@ -2,6 +2,6 @@
 **Learning:** Found that all page components are statically imported in App.tsx, causing the entire application (including the internal operator console) to be loaded upfront even for public users.
 **Action:** Implement route-based code splitting using React.lazy and Suspense to improve initial load performance.
 
-## 2025-05-15 - [Console Performance Optimizations]
-**Learning:** In list-heavy pages like the Signal Queue, repeated expensive operations (Intl.DateTimeFormat instantiation, string conversions, and complex filtering) within the render loop significantly impact responsiveness.
-**Action:** Pre-allocate expensive objects outside component scopes, hoist constant operations (like .toLowerCase()) out of filter loops, and use early-exit patterns to minimize processing time.
+## 2026-04-20 - [Optimizing Console Responsiveness]
+**Learning:** Search filtering in the Signal Queue was blocking the main thread, causing input lag. Additionally, redundant `new Date()` allocations inside render loops created unnecessary GC pressure.
+**Action:** Implemented `useDeferredValue` for search terms to prioritize input responsiveness. Refactored date formatting to pass raw numeric timestamps directly to `Intl.DateTimeFormat`, avoiding redundant object allocations.

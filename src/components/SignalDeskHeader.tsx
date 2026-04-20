@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -13,7 +14,7 @@ interface SignalDeskHeaderProps {
   onActiveSignals?: () => void
 }
 
-export function SignalDeskHeader({ 
+export const SignalDeskHeader = memo(function SignalDeskHeader({
   variant = "intake",
   onTransmit,
   onTrack,
@@ -182,9 +183,9 @@ export function SignalDeskHeader({
       <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-white" />
     </div>
   )
-}
+})
 
-function WolfEmblem() {
+const WolfEmblem = memo(function WolfEmblem() {
   return (
     <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
       <path
@@ -211,4 +212,4 @@ function WolfEmblem() {
       />
     </svg>
   )
-}
+})

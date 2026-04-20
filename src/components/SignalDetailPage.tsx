@@ -89,7 +89,7 @@ export function SignalDetailPage() {
   }
 
   const formatTimestamp = (timestamp: number) => {
-    return longDateFormatter.format(new Date(timestamp))
+    return longDateFormatter.format(timestamp)
   }
 
   const systemLog = useMemo(() => {
