@@ -1,7 +1,12 @@
 import { SignalStatus } from "@/lib/types"
 import { CheckCircle, Clock } from "@phosphor-icons/react"
 import { cn, shortDateFormatter } from "@/lib/utils"
+import { memo } from "react"
 
+/**
+ * Memoized to prevent re-renders during keystrokes in the search input of StatusPage.
+ * Ensures the complex timeline SVG/DOM structure is only updated when status or lastUpdated changes.
+ */
 interface StatusTimelineProps {
   currentStatus: SignalStatus
   lastUpdated: number
@@ -16,7 +21,7 @@ const statusOrder: SignalStatus[] = [
   "RESOLUTION_COMPLETE"
 ]
 
-export function StatusTimeline({ currentStatus, lastUpdated, className }: StatusTimelineProps) {
+export const StatusTimeline = memo(function StatusTimeline({ currentStatus, lastUpdated, className }: StatusTimelineProps) {
   const currentIndex = statusOrder.indexOf(currentStatus)
   
   const formatTimestamp = (timestamp: number) => {
@@ -78,4 +83,4 @@ export function StatusTimeline({ currentStatus, lastUpdated, className }: Status
       </div>
     </div>
   )
-}
+})
