@@ -1,6 +1,6 @@
 # Frisky Developments Signal Intake System
 
-A premium signal intake and operator console system for managing client requests. This is a dual-interface system with a public intake portal and a protected operator console, designed with clear Frisky Developments branding and system-native terminology.
+A premium signal intake and operator console system for managing client requests. This is a dual-interface system with a public intake portal and a protected operator console, functioning as proprietary infrastructure with clear Frisky Developments identity and system-native terminology.
 
 *🐾 Forged with a frisky paw and a daring heart.*
 
@@ -28,8 +28,8 @@ This application adheres to strict brand identity terms. The following terms mus
 1. Install dependencies:
    `npm install`
 
-2. Start the development server and check the console output for the local URL/port:
-   `npm run dev`
+2. Start the development server (runs on port 5000):
+   `npm start dev &`
 
 ### Building for Production
 
@@ -47,7 +47,7 @@ To fully utilize the webhook alerting system, you must configure Discord and/or 
 4. Provide your Telegram Bot Token and Chat ID.
 5. Save settings.
 
-*Note: Webhook failures do not block user submissions, but failures may be logged for debugging or monitoring purposes.*
+*Note: Webhook failures are handled silently to avoid blocking user submissions.*
 
 ## Technologies
 
@@ -56,4 +56,3 @@ To fully utilize the webhook alerting system, you must configure Discord and/or 
 - Vite
 - Tailwind CSS v4 (with custom "Premium Dark" aesthetic configurations)
 - Radix UI Primitives & Framer Motion
-- React Router DOM
