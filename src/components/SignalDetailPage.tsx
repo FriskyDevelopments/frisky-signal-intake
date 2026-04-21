@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/StatusBadge"
 import { ArrowLeft, Note, FloppyDisk } from "@phosphor-icons/react"
 import { Signal, SignalStatus, InternalNote } from "@/lib/types"
 import { useKV } from "@github/spark/hooks"
+import { longDateFormatter } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 
@@ -88,14 +89,7 @@ export function SignalDetailPage() {
   }
 
   const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp)
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    })
+    return longDateFormatter.format(timestamp)
   }
 
   const systemLog = useMemo(() => {

@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { ReactNode, memo } from "react"
 import { cn } from "@/lib/utils"
 
 interface GlassPanelProps {
@@ -7,10 +7,10 @@ interface GlassPanelProps {
   id?: string
 }
 
-export function GlassPanel({ children, className, id }: GlassPanelProps) {
+export const GlassPanel = memo(function GlassPanel({ children, className, id }: GlassPanelProps) {
   return (
     <div id={id} className={cn("glass-panel rounded-lg p-6", className)}>
       {children}
     </div>
   )
-}
+})

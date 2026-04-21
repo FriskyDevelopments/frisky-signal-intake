@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,12 +33,18 @@ export function StatusPage() {
     }
   }
 
+  /**
+   * Stabilized callbacks to prevent unnecessary re-renders of the memoized SignalDeskHeader.
+   */
+  const handleTrack = useCallback(() => {}, [])
+  const handleTransmit = useCallback(() => navigate("/"), [navigate])
+
   return (
     <div className="min-h-screen bg-background">
       <SignalDeskHeader 
         variant="status"
-        onTrack={() => {}}
-        onTransmit={() => navigate("/")}
+        onTrack={handleTrack}
+        onTransmit={handleTransmit}
       />
       
       <div className="p-6 sm:p-8">

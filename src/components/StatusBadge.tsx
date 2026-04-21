@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { SignalStatus } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -7,7 +8,7 @@ interface StatusBadgeProps {
   className?: string
 }
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
+export const StatusBadge = memo(function StatusBadge({ status, className }: StatusBadgeProps) {
   const getStatusColor = (status: SignalStatus) => {
     switch (status) {
       case "SIGNAL_RECEIVED":
@@ -37,4 +38,4 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
       {status.replace(/_/g, " ")}
     </Badge>
   )
-}
+})
