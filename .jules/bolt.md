@@ -9,3 +9,7 @@
 ## 2026-04-21 - [Effective Memoization Patterns]
 **Learning:** Found that several large UI components (like `SignalDeskHeader`) were wrapped in `React.memo`, but their parent components were passing unstable inline arrow functions as props, causing them to re-render on every keystroke in nearby input fields.
 **Action:** Stabilized navigation and scroll handlers using `useCallback` in `IntakePage` and `StatusPage`. Memoized the static `SignalFooter` and complex `StatusTimeline` to further reduce the virtual DOM diffing overhead during high-frequency updates.
+
+## 2026-04-22 - [Optimizing List Rendering via Component Isolation]
+**Learning:** Found that `useDeferredValue` alone doesn't prevent the re-evaluation of complex JSX trees in the same component. Even if data doesn't change, React still diffs the entire tree on parent re-renders unless children are memoized components receiving stable props.
+**Action:** Extracted and memoized the Signal Queue table into dedicated components. Stabilized event handlers with `useCallback` to ensure the memoization remains effective during high-frequency state updates like typing.
