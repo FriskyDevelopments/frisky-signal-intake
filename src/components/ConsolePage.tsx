@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useDeferredValue } from "react"
+import { useState, useMemo, useCallback, useDeferredValue, memo } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +16,86 @@ import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+
+/**
+ * Memoized row component to prevent redundant re-renders of the table row
+ * when unrelated parent state (like search input) changes.
+ */
+const SignalRow = memo(function SignalRow({
+  signal,
+  onClick
+}: {
+  signal: Signal & { formattedDate: string };
+  onClick: (id: string) => void
+}) {
+  return (
+    <TableRow
+      key={signal.id}
+      className={cn(
+        "cursor-pointer transition-all duration-200",
+        signal.isNew && "signal-new"
+      )}
+      onClick={() => onClick(signal.id)}
+    >
+      <TableCell className="font-medium">
+        {signal.ticketId}
+      </TableCell>
+      <TableCell>
+        <div>
+          <div className="font-medium">{signal.name}</div>
+          <div className="text-sm text-muted-foreground">{signal.contact}</div>
+        </div>
+      </TableCell>
+      <TableCell className="text-sm">
+        {signal.requestType}
+      </TableCell>
+      <TableCell>
+        <StatusBadge status={signal.status} />
+      </TableCell>
+      <TableCell className="text-sm text-muted-foreground">
+        {signal.formattedDate}
+      </TableCell>
+    </TableRow>
+  )
+})
+
+/**
+ * Memoized table component to isolate the O(N) list rendering from the
+ * main ConsolePage state updates. Ensures the table is only re-evaluated
+ * when the filtered results actually change.
+ */
+const SignalTable = memo(function SignalTable({
+  signals,
+  onRowClick
+}: {
+  signals: (Signal & { formattedDate: string })[];
+  onRowClick: (id: string) => void
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[140px]">Ticket ID</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Created</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {signals.map((signal) => (
+            <SignalRow
+              key={signal.id}
+              signal={signal}
+              onClick={onRowClick}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  )
+})
 
 export function ConsolePage() {
   const navigate = useNavigate()
@@ -83,11 +163,24 @@ export function ConsolePage() {
     return { filteredSignals: result, activeSignalsCount: activeCount }
   }, [indexedSignals, deferredSearchTerm, statusFilter, typeFilter])
 
-  const handleMarkAsViewed = (signalId: string) => {
+  /**
+   * Stabilized mark-as-viewed callback to prevent breaking memoization
+   * in SignalTable and SignalRow.
+   */
+  const handleMarkAsViewed = useCallback((signalId: string) => {
     setSignals((current) => 
       current?.map(s => s.id === signalId ? { ...s, isNew: false } : s) ?? []
     )
-  }
+  }, [setSignals])
+
+  /**
+   * Combined navigation and update handler, memoized to provide a stable
+   * reference for downstream components.
+   */
+  const handleRowClick = useCallback((signalId: string) => {
+    handleMarkAsViewed(signalId)
+    navigate(`/console/signal/${signalId}`)
+  }, [handleMarkAsViewed, navigate])
 
   const handleExportCSV = () => {
     if (!signals || signals.length === 0) {
@@ -298,53 +391,10 @@ export function ConsolePage() {
                 <p>No active signals</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[140px]">Ticket ID</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredSignals.map((signal) => (
-                      <TableRow
-                        key={signal.id}
-                        className={cn(
-                          "cursor-pointer transition-all duration-200",
-                          signal.isNew && "signal-new"
-                        )}
-                        onClick={() => {
-                          handleMarkAsViewed(signal.id)
-                          navigate(`/console/signal/${signal.id}`)
-                        }}
-                      >
-                        <TableCell className="font-medium">
-                          {signal.ticketId}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{signal.name}</div>
-                            <div className="text-sm text-muted-foreground">{signal.contact}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {signal.requestType}
-                        </TableCell>
-                        <TableCell>
-                          <StatusBadge status={signal.status} />
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {signal.formattedDate}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+              <SignalTable
+                signals={filteredSignals}
+                onRowClick={handleRowClick}
+              />
             )}
           </GlassPanel>
         </motion.div>
