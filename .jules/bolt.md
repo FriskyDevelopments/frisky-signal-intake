@@ -9,3 +9,7 @@
 ## 2026-04-21 - [Effective Memoization Patterns]
 **Learning:** Found that several large UI components (like `SignalDeskHeader`) were wrapped in `React.memo`, but their parent components were passing unstable inline arrow functions as props, causing them to re-render on every keystroke in nearby input fields.
 **Action:** Stabilized navigation and scroll handlers using `useCallback` in `IntakePage` and `StatusPage`. Memoized the static `SignalFooter` and complex `StatusTimeline` to further reduce the virtual DOM diffing overhead during high-frequency updates.
+
+## 2026-04-23 - [Referential Stability in Memoized Lists]
+**Learning:** React.memo on list items is often ineffective if the parent re-creates data objects in a useMemo (e.g., for indexing). Standard mapping always returns new references, breaking child memoization.
+**Action:** Implement a manual cache using useRef inside useMemo to preserve stable object references for unchanged data items, ensuring React.memo can skip re-renders correctly.
