@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useDeferredValue } from "react"
+import { useState, useMemo, useCallback, useDeferredValue, memo, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,6 +17,48 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
+/**
+ * Extracted into a memoized component to prevent re-rendering every row
+ * when the parent state (like search term or filters) changes.
+ * Only re-renders if the specific signal data or callbacks change.
+ */
+const SignalRow = memo(function SignalRow({
+  signal,
+  onClick
+}: {
+  signal: any,
+  onClick: (id: string) => void
+}) {
+  return (
+    <TableRow
+      className={cn(
+        "cursor-pointer transition-all duration-200",
+        signal.isNew && "signal-new"
+      )}
+      onClick={() => onClick(signal.id)}
+    >
+      <TableCell className="font-medium">
+        {signal.ticketId}
+      </TableCell>
+      <TableCell>
+        <div>
+          <div className="font-medium">{signal.name}</div>
+          <div className="text-sm text-muted-foreground">{signal.contact}</div>
+        </div>
+      </TableCell>
+      <TableCell className="text-sm">
+        {signal.requestType}
+      </TableCell>
+      <TableCell>
+        <StatusBadge status={signal.status} />
+      </TableCell>
+      <TableCell className="text-sm text-muted-foreground">
+        {signal.formattedDate}
+      </TableCell>
+    </TableRow>
+  )
+})
+
 export function ConsolePage() {
   const navigate = useNavigate()
   const [signals, setSignals] = useKV<Signal[]>("signals", [])
@@ -33,18 +75,41 @@ export function ConsolePage() {
   const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
 
-  // Index signals with pre-calculated fields to optimize filtering and rendering performance.
-  // This index only updates when the signals array changes.
+  const indexedCache = useRef<Map<string, any>>(new Map())
+
+  /**
+   * Index signals with pre-calculated fields and implement object-level stability.
+   * By caching indexed versions and comparing original signal references, we ensure
+   * that individual object references in the result array remain stable.
+   * This allows React.memo(SignalRow) to effectively skip re-renders.
+   */
   const indexedSignals = useMemo(() => {
-    return (signals || []).map(signal => ({
-      ...signal,
-      formattedDate: shortDateFormatter.format(signal.createdAt),
-      searchIndex: {
-        ticketId: signal.ticketId.toLowerCase(),
-        name: signal.name.toLowerCase(),
-        contact: signal.contact.toLowerCase()
+    const nextCache = new Map()
+    const result = (signals || []).map(signal => {
+      const cached = indexedCache.current.get(signal.id)
+
+      // If the signal reference hasn't changed, reuse the cached indexed version
+      if (cached && cached.originalSignal === signal) {
+        nextCache.set(signal.id, cached)
+        return cached
       }
-    }))
+
+      const indexed = {
+        ...signal,
+        originalSignal: signal,
+        formattedDate: shortDateFormatter.format(signal.createdAt),
+        searchIndex: {
+          ticketId: signal.ticketId.toLowerCase(),
+          name: signal.name.toLowerCase(),
+          contact: signal.contact.toLowerCase()
+        }
+      }
+      nextCache.set(signal.id, indexed)
+      return indexed
+    })
+
+    indexedCache.current = nextCache
+    return result
   }, [signals])
 
   // Single-pass filtering and counting logic to minimize array traversals.
@@ -83,11 +148,16 @@ export function ConsolePage() {
     return { filteredSignals: result, activeSignalsCount: activeCount }
   }, [indexedSignals, deferredSearchTerm, statusFilter, typeFilter])
 
-  const handleMarkAsViewed = (signalId: string) => {
+  const handleMarkAsViewed = useCallback((signalId: string) => {
     setSignals((current) => 
       current?.map(s => s.id === signalId ? { ...s, isNew: false } : s) ?? []
     )
-  }
+  }, [setSignals])
+
+  const handleSignalClick = useCallback((id: string) => {
+    handleMarkAsViewed(id)
+    navigate(`/console/signal/${id}`)
+  }, [handleMarkAsViewed, navigate])
 
   const handleExportCSV = () => {
     if (!signals || signals.length === 0) {
@@ -311,36 +381,11 @@ export function ConsolePage() {
                   </TableHeader>
                   <TableBody>
                     {filteredSignals.map((signal) => (
-                      <TableRow
+                      <SignalRow
                         key={signal.id}
-                        className={cn(
-                          "cursor-pointer transition-all duration-200",
-                          signal.isNew && "signal-new"
-                        )}
-                        onClick={() => {
-                          handleMarkAsViewed(signal.id)
-                          navigate(`/console/signal/${signal.id}`)
-                        }}
-                      >
-                        <TableCell className="font-medium">
-                          {signal.ticketId}
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{signal.name}</div>
-                            <div className="text-sm text-muted-foreground">{signal.contact}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {signal.requestType}
-                        </TableCell>
-                        <TableCell>
-                          <StatusBadge status={signal.status} />
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {signal.formattedDate}
-                        </TableCell>
-                      </TableRow>
+                        signal={signal}
+                        onClick={handleSignalClick}
+                      />
                     ))}
                   </TableBody>
                 </Table>
