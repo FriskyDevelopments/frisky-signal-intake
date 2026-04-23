@@ -30,6 +30,12 @@ export interface Signal {
   isNew: boolean
 }
 
+export interface IndexedSignal extends Signal {
+  originalSignal: Signal
+  formattedDate: string
+  searchIndex: string // Unified lowercase search string
+}
+
 export interface InternalNote {
   id: string
   content: string

@@ -8,7 +8,7 @@ import { GlassPanel } from "@/components/GlassPanel"
 import { SignalDeskHeader } from "@/components/SignalDeskHeader"
 import { StatusBadge } from "@/components/StatusBadge"
 import { MagnifyingGlass, Funnel, Export, Gear } from "@phosphor-icons/react"
-import { Signal, SignalStatus, RequestType } from "@/lib/types"
+import { Signal, SignalStatus, RequestType, IndexedSignal } from "@/lib/types"
 import { useKV } from "@github/spark/hooks"
 import { shortDateFormatter } from "@/lib/utils"
 import { motion } from "framer-motion"
@@ -16,48 +16,7 @@ import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-
-/**
- * Extracted into a memoized component to prevent re-rendering every row
- * when the parent state (like search term or filters) changes.
- * Only re-renders if the specific signal data or callbacks change.
- */
-const SignalRow = memo(function SignalRow({
-  signal,
-  onClick
-}: {
-  signal: any,
-  onClick: (id: string) => void
-}) {
-  return (
-    <TableRow
-      className={cn(
-        "cursor-pointer transition-all duration-200",
-        signal.isNew && "signal-new"
-      )}
-      onClick={() => onClick(signal.id)}
-    >
-      <TableCell className="font-medium">
-        {signal.ticketId}
-      </TableCell>
-      <TableCell>
-        <div>
-          <div className="font-medium">{signal.name}</div>
-          <div className="text-sm text-muted-foreground">{signal.contact}</div>
-        </div>
-      </TableCell>
-      <TableCell className="text-sm">
-        {signal.requestType}
-      </TableCell>
-      <TableCell>
-        <StatusBadge status={signal.status} />
-      </TableCell>
-      <TableCell className="text-sm text-muted-foreground">
-        {signal.formattedDate}
-      </TableCell>
-    </TableRow>
-  )
-})
+import { SignalRow } from "@/components/SignalRow"
 
 export function ConsolePage() {
   const navigate = useNavigate()
@@ -75,34 +34,28 @@ export function ConsolePage() {
   const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
 
-  const indexedCache = useRef<Map<string, any>>(new Map())
+  const indexedCache = useRef<Map<string, IndexedSignal>>(new Map())
 
   /**
    * Index signals with pre-calculated fields and implement object-level stability.
-   * By caching indexed versions and comparing original signal references, we ensure
-   * that individual object references in the result array remain stable.
-   * This allows React.memo(SignalRow) to effectively skip re-renders.
+   * Unified search index reduces string operations during the filtering phase.
    */
   const indexedSignals = useMemo(() => {
-    const nextCache = new Map()
+    const nextCache = new Map<string, IndexedSignal>()
     const result = (signals || []).map(signal => {
       const cached = indexedCache.current.get(signal.id)
 
-      // If the signal reference hasn't changed, reuse the cached indexed version
       if (cached && cached.originalSignal === signal) {
         nextCache.set(signal.id, cached)
         return cached
       }
 
-      const indexed = {
+      const indexed: IndexedSignal = {
         ...signal,
         originalSignal: signal,
         formattedDate: shortDateFormatter.format(signal.createdAt),
-        searchIndex: {
-          ticketId: signal.ticketId.toLowerCase(),
-          name: signal.name.toLowerCase(),
-          contact: signal.contact.toLowerCase()
-        }
+        // Pre-combine fields into a single search string to reduce .includes() calls from 3 to 1 per item.
+        searchIndex: `${signal.ticketId} ${signal.name} ${signal.contact}`.toLowerCase()
       }
       nextCache.set(signal.id, indexed)
       return indexed
@@ -129,12 +82,8 @@ export function ConsolePage() {
       if (isMatch && typeFilter !== "ALL" && signal.requestType !== typeFilter) isMatch = false
 
       if (isMatch && searchLower) {
-        // Use pre-calculated search index to avoid O(N) string conversions during keystrokes
-        isMatch = (
-          signal.searchIndex.ticketId.includes(searchLower) ||
-          signal.searchIndex.name.includes(searchLower) ||
-          signal.searchIndex.contact.includes(searchLower)
-        )
+        // Use pre-calculated unified index for O(1) string comparison check per signal.
+        isMatch = signal.searchIndex.includes(searchLower)
       }
 
       if (isMatch) {
