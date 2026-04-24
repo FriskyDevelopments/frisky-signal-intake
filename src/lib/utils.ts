@@ -16,6 +16,15 @@ export const shortDateFormatter = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit"
 })
 
+export const fullDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit"
+})
+
 export const longDateFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
   day: "numeric",
