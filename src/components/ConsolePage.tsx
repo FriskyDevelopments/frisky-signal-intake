@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useDeferredValue, memo } from "react"
+import { useState, useMemo, useCallback, useDeferredValue, memo, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,7 +10,16 @@ import { StatusBadge } from "@/components/StatusBadge"
 import { MagnifyingGlass, Funnel, Export, Gear } from "@phosphor-icons/react"
 import { Signal, SignalStatus, RequestType } from "@/lib/types"
 import { useKV } from "@github/spark/hooks"
-import { shortDateFormatter } from "@/lib/utils"
+import { shortDateFormatter, longDateFormatter } from "@/lib/utils"
+
+type IndexedSignal = Signal & {
+  formattedDate: string;
+  searchIndex: {
+    ticketId: string;
+    name: string;
+    contact: string;
+  };
+};
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -113,18 +122,45 @@ export function ConsolePage() {
   const [statusFilter, setStatusFilter] = useState<SignalStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<RequestType | "ALL">("ALL")
 
+  /**
+   * Referential stability cache for indexed signals.
+   * Maps signal ID to a tuple of [rawSignalReference, indexedSignalObject].
+   */
+  const indexedCache = useRef<Map<string, [Signal, IndexedSignal]>>(new Map())
+
   // Index signals with pre-calculated fields to optimize filtering and rendering performance.
   // This index only updates when the signals array changes.
   const indexedSignals = useMemo(() => {
-    return (signals || []).map(signal => ({
-      ...signal,
-      formattedDate: shortDateFormatter.format(signal.createdAt),
-      searchIndex: {
-        ticketId: signal.ticketId.toLowerCase(),
-        name: signal.name.toLowerCase(),
-        contact: signal.contact.toLowerCase()
+    const rawSignals = signals || []
+    const currentCache = indexedCache.current
+    const nextCache = new Map<string, [Signal, IndexedSignal]>()
+
+    const results = rawSignals.map(signal => {
+      const cached = currentCache.get(signal.id)
+
+      // If the raw signal reference is identical, reuse the indexed object.
+      // This preserves referential stability for SignalRow's memoization.
+      if (cached && cached[0] === signal) {
+        nextCache.set(signal.id, cached)
+        return cached[1]
       }
-    }))
+
+      const indexed = {
+        ...signal,
+        formattedDate: shortDateFormatter.format(signal.createdAt),
+        searchIndex: {
+          ticketId: signal.ticketId.toLowerCase(),
+          name: signal.name.toLowerCase(),
+          contact: signal.contact.toLowerCase()
+        }
+      }
+
+      nextCache.set(signal.id, [signal, indexed])
+      return indexed
+    })
+
+    indexedCache.current = nextCache
+    return results
   }, [signals])
 
   // Single-pass filtering and counting logic to minimize array traversals.
@@ -196,8 +232,8 @@ export function ConsolePage() {
       s.requestType,
       s.project || "",
       s.status,
-      new Date(s.createdAt).toLocaleString(),
-      new Date(s.updatedAt).toLocaleString()
+      longDateFormatter.format(s.createdAt),
+      longDateFormatter.format(s.updatedAt)
     ])
 
     const csvContent = [
