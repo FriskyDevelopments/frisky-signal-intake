@@ -72,6 +72,9 @@ export const SignalDeskHeader = memo(function SignalDeskHeader({
                 <img
                   src={wolfLogo}
                   alt="Frisky"
+                  loading="eager"
+                  width={48}
+                  height={48}
                   className="
                     w-11 h-11 md:w-12 md:h-12
                     opacity-95
