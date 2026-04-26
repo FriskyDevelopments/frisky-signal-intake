@@ -17,3 +17,7 @@
 ## 2026-04-23 - [Referential Stability Cache Pattern]
 **Learning:** `useMemo` is often used for array indexing/transformation, but recreating derived objects in the loop breaks `React.memo` in downstream list components. If the parent array is recreated (common with state updates), every child re-renders even if its individual source data hasn't changed.
 **Action:** Implemented a manual referential stability cache using `useRef` inside `useMemo`. By comparing raw source references, we can preserve exact derived object identities for unchanged items, enabling effective list-wide memoization even when the parent state is updated.
+
+## 2026-04-26 - [Optimizing Submission Pipeline and LCP]
+**Learning:** Sequential network requests in form submission block the user-perceived transition to success states. Additionally, missing dimensions on critical brand assets cause layout shifts and late prioritization by the browser.
+**Action:** Parallelized independent webhooks using `Promise.all` and added explicit `width`, `height`, and `loading="eager"` to the primary logo in the header.
