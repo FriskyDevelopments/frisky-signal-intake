@@ -72,6 +72,16 @@ export const SignalDeskHeader = memo(function SignalDeskHeader({
                 <img
                   src={wolfLogo}
                   alt="Frisky"
+                  /*
+                   * ⚡ BOLT OPTIMIZATION:
+                   * - width/height: Prevents Layout Shift (CLS) by reserving space.
+                   * - loading="eager": Ensures immediate loading for above-the-fold content.
+                   * - fetchPriority="high": Prioritizes this critical asset for LCP.
+                   */
+                  width={48}
+                  height={48}
+                  loading="eager"
+                  fetchPriority="high"
                   className="
                     w-11 h-11 md:w-12 md:h-12
                     opacity-95
